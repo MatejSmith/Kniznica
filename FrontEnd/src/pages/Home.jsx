@@ -49,14 +49,6 @@ const Home = () => {
 
     return (
         <div className="container mt-4">
-            <div className="row mb-4">
-                <div className="col">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h2 className="mb-1">Online Knižnica</h2>
-                    </div>
-                </div>
-            </div>
-
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {books.length === 0 ? (
                     <div className="col-12">

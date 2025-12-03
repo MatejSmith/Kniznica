@@ -25,5 +25,6 @@ const verifyAdmin = (req, res, next) => {
 
 router.post('/', verifyToken, verifyAdmin, booksController.addBook);
 router.get('/', booksController.getAllBooks);
+router.put('/:id', verifyToken, verifyAdmin, booksController.updateBook);
 
 module.exports = router;

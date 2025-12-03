@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminBooks = () => {
     const [books, setBooks] = useState([]);
+    const [profile, setProfile] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         author: "",
@@ -16,6 +17,7 @@ const AdminBooks = () => {
     });
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [editingBook, setEditingBook] = useState(null);
     const { token, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -24,6 +26,25 @@ const AdminBooks = () => {
             navigate("/login");
             return;
         }
+
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get("http://localhost:3000/api/auth/profile", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setProfile(res.data);
+
+                // Redirect non-administrators to home
+                if (res.data.role !== 'administrator') {
+                    navigate("/home");
+                }
+            } catch (err) {
+                logout();
+                navigate("/login");
+            }
+        };
+
+        fetchProfile();
         fetchBooks();
     }, [token, navigate]);
 
@@ -46,10 +67,20 @@ const AdminBooks = () => {
         setSuccess("");
 
         try {
-            await axios.post("http://localhost:3000/api/books", formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setSuccess("Kniha bola úspešne pridaná!");
+            if (editingBook) {
+                // Update existing book
+                await axios.put(`http://localhost:3000/api/books/${editingBook.book_id}`, formData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setSuccess("Kniha bola úspešne aktualizovaná!");
+                setEditingBook(null);
+            } else {
+                // Add new book
+                await axios.post("http://localhost:3000/api/books", formData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setSuccess("Kniha bola úspešne pridaná!");
+            }
             setFormData({
                 title: "",
                 author: "",
@@ -61,8 +92,38 @@ const AdminBooks = () => {
             });
             fetchBooks();
         } catch (err) {
-            setError(err.response?.data?.error || "Chyba pri pridávaní knihy");
+            setError(err.response?.data?.error || "Chyba pri spracovaní knihy");
         }
+    };
+
+    const handleEdit = (book) => {
+        setEditingBook(book);
+        setFormData({
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            description: book.description || "",
+            cover_image: book.cover_image || "",
+            total_copies: book.total_copies,
+            available_copies: book.available_copies
+        });
+        setError("");
+        setSuccess("");
+    };
+
+    const handleCancelEdit = () => {
+        setEditingBook(null);
+        setFormData({
+            title: "",
+            author: "",
+            isbn: "",
+            description: "",
+            cover_image: "",
+            total_copies: 1,
+            available_copies: 1
+        });
+        setError("");
+        setSuccess("");
     };
 
     return (
@@ -71,7 +132,7 @@ const AdminBooks = () => {
                 <div className="col-lg-5 mb-4">
                     <div className="card shadow border-0">
                         <div className="card-header bg-primary text-white">
-                            <h4 className="mb-0">Pridať novú knihu</h4>
+                            <h4 className="mb-0">{editingBook ? 'Upraviť knihu' : 'Pridať novú knihu'}</h4>
                         </div>
                         <div className="card-body p-4">
                             {error && <div className="alert alert-danger" role="alert">{error}</div>}
@@ -155,7 +216,14 @@ const AdminBooks = () => {
                                         />
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-primary w-100">Pridať knihu</button>
+                                <button type="submit" className="btn btn-primary w-100">
+                                    {editingBook ? 'Aktualizovať knihu' : 'Pridať knihu'}
+                                </button>
+                                {editingBook && (
+                                    <button type="button" className="btn btn-secondary w-100 mt-2" onClick={handleCancelEdit}>
+                                        Zrušiť úpravu
+                                    </button>
+                                )}
                             </form>
                         </div>
                     </div>
@@ -175,12 +243,13 @@ const AdminBooks = () => {
                                             <th>Autor</th>
                                             <th>ISBN</th>
                                             <th className="text-center">Dostupné/Celkom</th>
+                                            <th className="text-center">Akcie</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {books.length === 0 ? (
                                             <tr>
-                                                <td colSpan="4" className="text-center text-muted py-4">
+                                                <td colSpan="5" className="text-center text-muted py-4">
                                                     Zatiaľ neboli pridané žiadne knihy
                                                 </td>
                                             </tr>
@@ -194,6 +263,14 @@ const AdminBooks = () => {
                                                         <span className={`badge ${book.available_copies > 0 ? 'bg-success' : 'bg-danger'}`}>
                                                             {book.available_copies}/{book.total_copies}
                                                         </span>
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            onClick={() => handleEdit(book)}
+                                                        >
+                                                            Upraviť
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))

@@ -8,7 +8,7 @@ const Navigation = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
             <div className="container">
-                <Link className="navbar-brand fw-bold text-primary" to="/">Online Knižnica</Link>
+                <Link className="navbar-brand fw-bold text-primary" to="/home">Online Knižnica</Link>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span className="navbar-toggler-icon"></span>
                 </button>
