@@ -1,42 +1,83 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* 1. Pozadie celej aplikácie */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* 2. Štýl pre hlavný kontajner obsahu */
+.main-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 3. Vlastný štýl pre karty (formuláre) */
+.custom-card {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* 4. Nadpisy v kartách */
+.card-title {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-weight: 600;
+    text-align: center;
 }
 
-.card {
-  padding: 2em;
+/* 5. Vlastné tlačidlo (override Bootstrapu) */
+.btn-custom {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 500;
+    padding: 10px 20px;
+    width: 100%;
 }
 
-.read-the-docs {
-  color: #888;
+.btn-custom:hover {
+    background-color: #0b5ed7;
+}
+
+/* 6. Tlačidlo pre delete akciu */
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    margin-top: 15px;
+}
+
+/* 7. Štýl pre inputy pri fokuse */
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 8. Chybové hlášky */
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* 9. Navbar customizácia */
+.navbar-custom {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* 10. Odkazy v texte */
+.text-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.text-link:hover {
+    text-decoration: underline;
 }
