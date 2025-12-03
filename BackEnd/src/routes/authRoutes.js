@@ -8,8 +8,7 @@ const verifyToken = (req, res, next) => {
     if (!token) return res.status(403).json({ error: "Prístup odmietnutý." });
 
     try {
-        const verified = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
-        req.user = verified;
+        req.user = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
         next();
     } catch (err) {
         res.status(401).json({ error: "Neplatný token." });
