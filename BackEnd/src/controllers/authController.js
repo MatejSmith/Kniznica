@@ -76,14 +76,3 @@ exports.getProfile = async (req, res) => {
         res.status(500).send("Chyba servera");
     }
 };
-
-// Zmazanie účtu (DELETE)
-exports.deleteAccount = async (req, res) => {
-    try {
-        await pool.query("DELETE FROM users WHERE user_id = $1", [req.user.user_id]);
-        res.json({ message: "Účet bol úspešne zmazaný." });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Chyba servera");
-    }
-};

@@ -18,6 +18,5 @@ const verifyToken = (req, res, next) => {
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/profile', verifyToken, authController.getProfile);
-router.delete('/profile', verifyToken, authController.deleteAccount);
 
 module.exports = router;

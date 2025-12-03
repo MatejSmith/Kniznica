@@ -1,0 +1,29 @@
+const router = require('express').Router();
+const booksController = require('../controllers/booksController');
+const jwt = require('jsonwebtoken');
+
+// Middleware to verify token
+const verifyToken = (req, res, next) => {
+    const token = req.header("Authorization");
+    if (!token) return res.status(403).json({ error: "Prístup odmietnutý." });
+
+    try {
+        req.user = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
+        next();
+    } catch (err) {
+        res.status(401).json({ error: "Neplatný token." });
+    }
+};
+
+// Middleware to verify admin role
+const verifyAdmin = (req, res, next) => {
+    if (req.user.role !== 'administrator') {
+        return res.status(403).json({ error: "Prístup len pre administrátorov." });
+    }
+    next();
+};
+
+router.post('/', verifyToken, verifyAdmin, booksController.addBook);
+router.get('/', booksController.getAllBooks);
+
+module.exports = router;
