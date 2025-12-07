@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const validator = require('validator');
 
 // Add a new book (admin only)
 exports.addBook = async (req, res) => {
@@ -9,12 +10,25 @@ exports.addBook = async (req, res) => {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
+    // Validate ISBN format (ISBN-10 or ISBN-13)
+    if (!validator.isISBN(isbn)) {
+        return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
+    }
+
+    // Validate copies logic
+    const totalCopies = parseInt(total_copies) || 1;
+    const availableCopies = parseInt(available_copies) || 1;
+
+    if (availableCopies > totalCopies) {
+        return res.status(400).json({ error: "Dostupné kusy nemôžu presiahnuť celkový počet." });
+    }
+
     try {
         const newBook = await pool.query(
             `INSERT INTO books (title, author, isbn, description, cover_image, total_copies, available_copies) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) 
              RETURNING *`,
-            [title, author, isbn, description || null, cover_image || null, total_copies || 1, available_copies || 1]
+            [title, author, isbn, description || null, cover_image || null, totalCopies, availableCopies]
         );
 
         res.status(201).json({ message: "Kniha bola úspešne pridaná", book: newBook.rows[0] });
@@ -49,6 +63,19 @@ exports.updateBook = async (req, res) => {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
+    // Validate ISBN format (ISBN-10 or ISBN-13)
+    if (!validator.isISBN(isbn)) {
+        return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
+    }
+
+    // Validate copies logic
+    const totalCopies = parseInt(total_copies) || 1;
+    const availableCopies = parseInt(available_copies) || 1;
+
+    if (availableCopies > totalCopies) {
+        return res.status(400).json({ error: "Dostupné kusy nemôžu presiahnuť celkový počet." });
+    }
+
     try {
         const updatedBook = await pool.query(
             `UPDATE books 
@@ -57,7 +84,7 @@ exports.updateBook = async (req, res) => {
              WHERE book_id = $8 
              RETURNING *`,
             [title, author, isbn, description || null, cover_image || null,
-                total_copies || 1, available_copies || 1, id]
+                totalCopies, availableCopies, id]
         );
 
         if (updatedBook.rows.length === 0) {

@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
+const validator = require('validator');
 
 // Registrácia (CREATE)
 exports.register = async (req, res) => {
@@ -8,6 +9,9 @@ exports.register = async (req, res) => {
     // Serverová validácia
     if (!email || !password) {
         return res.status(400).json({ error: "Všetky polia sú povinné." });
+    }
+    if (!validator.isEmail(email)) {
+        return res.status(400).json({ error: "Neplatný formát emailu." });
     }
     if (password.length < 6) {
         return res.status(400).json({ error: "Heslo musí mať aspoň 6 znakov." });

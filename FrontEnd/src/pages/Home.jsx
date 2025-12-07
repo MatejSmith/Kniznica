@@ -1,12 +1,12 @@
 import { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
     const [profile, setProfile] = useState(null);
     const [books, setBooks] = useState([]);
-    const { token } = useContext(AuthContext);
+    const { token, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,9 +17,7 @@ const Home = () => {
 
         const fetchProfile = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/auth/profile", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await api.get("/auth/profile");
                 setProfile(res.data);
 
                 // Redirect administrators to admin books page
@@ -34,7 +32,7 @@ const Home = () => {
 
         const fetchBooks = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/books");
+                const res = await api.get("/books");
                 setBooks(res.data);
             } catch (err) {
                 console.error("Error fetching books:", err);

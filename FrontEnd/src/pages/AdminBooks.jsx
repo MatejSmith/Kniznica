@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -29,9 +29,7 @@ const AdminBooks = () => {
 
         const fetchProfile = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/auth/profile", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await api.get("/auth/profile");
                 setProfile(res.data);
 
                 // Redirect non-administrators to home
@@ -50,7 +48,7 @@ const AdminBooks = () => {
 
     const fetchBooks = async () => {
         try {
-            const res = await axios.get("http://localhost:3000/api/books");
+            const res = await api.get("/books");
             setBooks(res.data);
         } catch (err) {
             console.error("Error fetching books:", err);
@@ -69,16 +67,12 @@ const AdminBooks = () => {
         try {
             if (editingBook) {
                 // Update existing book
-                await axios.put(`http://localhost:3000/api/books/${editingBook.book_id}`, formData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await api.put(`/books/${editingBook.book_id}`, formData);
                 setSuccess("Kniha bola úspešne aktualizovaná!");
                 setEditingBook(null);
             } else {
                 // Add new book
-                await axios.post("http://localhost:3000/api/books", formData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await api.post("/books", formData);
                 setSuccess("Kniha bola úspešne pridaná!");
             }
             setFormData({
@@ -132,9 +126,7 @@ const AdminBooks = () => {
         }
 
         try {
-            await axios.delete(`http://localhost:3000/api/books/${bookId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/books/${bookId}`);
             setSuccess("Kniha bola úspešne vymazaná!");
             fetchBooks();
         } catch (err) {
