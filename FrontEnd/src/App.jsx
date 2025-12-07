@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import AdminBooks from "./pages/AdminBooks";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
+import Home from "./pages/Home/Home";
+import AdminBooks from "./pages/AdminBooks/AdminBooks";
 import { AuthProvider } from "./context/AuthContext";
 import './App.css';
 

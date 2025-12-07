@@ -13,6 +13,9 @@ exports.register = async (req, res) => {
     if (!validator.isEmail(email)) {
         return res.status(400).json({ error: "Neplatný formát emailu." });
     }
+    if (email.length > 254) {
+        return res.status(400).json({ error: "Email je príliš dlhý (maximum 254 znakov)." });
+    }
     if (password.length < 6) {
         return res.status(400).json({ error: "Heslo musí mať aspoň 6 znakov." });
     }

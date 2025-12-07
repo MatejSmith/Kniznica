@@ -1,7 +1,8 @@
 import { useState, useContext, useEffect } from "react";
-import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
+import api from "../../api/axios";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ const Login = () => {
     };
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 login-page">
             <div className="row justify-content-center">
                 <div className="col-md-6 col-lg-5">
                     <div className="card shadow-lg border-0 rounded-3">
@@ -44,6 +45,7 @@ const Login = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        maxLength={254}
                                         placeholder="name@example.com"
                                     />
                                 </div>

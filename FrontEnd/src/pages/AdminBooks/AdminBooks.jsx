@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
+import api from "../../api/axios";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "./AdminBooks.css";
 
 const AdminBooks = () => {
     const [books, setBooks] = useState([]);
@@ -135,7 +136,7 @@ const AdminBooks = () => {
     };
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 admin-books-page">
             <div className="row">
                 <div className="col-lg-5 mb-4">
                     <div className="card shadow border-0">

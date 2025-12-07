@@ -1,0 +1,18 @@
+/* Custom CSS for Login Page */
+
+/* Letter spacing for heading to make it more elegant */
+.login-page h2 {
+    letter-spacing: 1.5px;
+}
+
+/* add style when user click on input field */
+.login-page .form-control:focus {
+    box-shadow: none;
+    border-color: #80bdff;
+}
+
+/* Custom placeholder styling with reduced opacity */
+.login-page .form-control {
+    opacity: 0.6;
+    font-style: italic;
+}

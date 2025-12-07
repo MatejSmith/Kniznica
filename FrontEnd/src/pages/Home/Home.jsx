@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from "react";
-import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
+import api from "../../api/axios";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "./Home.css";
 
 const Home = () => {
     const [profile, setProfile] = useState(null);
@@ -46,7 +47,7 @@ const Home = () => {
     if (!profile) return <div className="text-center mt-5">Načítavam...</div>;
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-4 home-page">
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {books.length === 0 ? (
                     <div className="col-12">

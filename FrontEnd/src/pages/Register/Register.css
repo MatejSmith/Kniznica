@@ -1,0 +1,23 @@
+/* Custom CSS for Register Page */
+
+/* Subtle gradient background for the card */
+.register-page .card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+/* Custom placeholder styling with reduced opacity */
+.register-page .form-control {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Additional padding for better spacing */
+.register-page .form-control {
+    padding: 0.75rem 1rem;
+}
+
+/* add focus style on input field */
+.register-page .form-control:focus {
+    box-shadow: none;
+    border-color: #80bdff;
+}

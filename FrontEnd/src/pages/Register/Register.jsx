@@ -1,7 +1,8 @@
 import { useState, useContext, useEffect } from "react";
-import api from "../api/axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
+import "./Register.css";
 
 const Register = () => {
     const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
@@ -24,6 +25,15 @@ const Register = () => {
         setError("");
 
         // Klientska validácia
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError("Neplatný formát emailu.");
+            return;
+        }
+        if (formData.email.length > 254) {
+            setError("Email je príliš dlhý (maximum 254 znakov).");
+            return;
+        }
         if (formData.password !== formData.confirmPassword) {
             setError("Heslá sa nezhodujú!");
             return;
@@ -45,7 +55,7 @@ const Register = () => {
     };
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 register-page">
             <div className="row justify-content-center">
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow-lg border-0 rounded-3">
@@ -60,6 +70,7 @@ const Register = () => {
                                         name="email"
                                         className="form-control form-control-lg"
                                         required
+                                        maxLength={254}
                                         onChange={handleChange}
                                         placeholder="name@example.com"
                                     />
