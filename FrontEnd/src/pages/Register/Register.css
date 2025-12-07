@@ -6,7 +6,7 @@
 }
 
 /* Custom placeholder styling with reduced opacity */
-.register-page .form-control {
+.register-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;
 }

@@ -16,8 +16,8 @@ exports.addBook = async (req, res) => {
     }
 
     // Validácia logiky kópií
-    const totalCopies = parseInt(total_copies) || 1;
-    const availableCopies = parseInt(available_copies) || 1;
+    const totalCopies = total_copies !== undefined ? parseInt(total_copies) : 1;
+    const availableCopies = available_copies !== undefined ? parseInt(available_copies) : 0;
 
     if (availableCopies > totalCopies) {
         return res.status(400).json({ error: "Dostupné kusy nemôžu presiahnuť celkový počet." });
@@ -69,8 +69,8 @@ exports.updateBook = async (req, res) => {
     }
 
     // Validácia logiky kópií
-    const totalCopies = parseInt(total_copies) || 1;
-    const availableCopies = parseInt(available_copies) || 1;
+    const totalCopies = total_copies !== undefined ? parseInt(total_copies) : 1;
+    const availableCopies = available_copies !== undefined ? parseInt(available_copies) : 0;
 
     if (availableCopies > totalCopies) {
         return res.status(400).json({ error: "Dostupné kusy nemôžu presiahnuť celkový počet." });

@@ -12,7 +12,7 @@
 }
 
 /* Custom placeholder styling with reduced opacity */
-.login-page .form-control {
+.login-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;
 }
