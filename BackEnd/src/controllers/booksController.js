@@ -74,3 +74,25 @@ exports.updateBook = async (req, res) => {
         res.status(500).send("Chyba servera");
     }
 };
+
+// Delete a book (admin only)
+exports.deleteBook = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedBook = await pool.query(
+            "DELETE FROM books WHERE book_id = $1 RETURNING *",
+            [id]
+        );
+
+        if (deletedBook.rows.length === 0) {
+            return res.status(404).json({ error: "Kniha nebola nájdená." });
+        }
+
+        res.json({ message: "Kniha bola úspešne vymazaná", book: deletedBook.rows[0] });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Chyba servera");
+    }
+};

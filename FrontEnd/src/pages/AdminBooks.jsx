@@ -126,6 +126,22 @@ const AdminBooks = () => {
         setSuccess("");
     };
 
+    const handleDelete = async (bookId, bookTitle) => {
+        if (!window.confirm(`Naozaj chcete vymazať knihu "${bookTitle}"?`)) {
+            return;
+        }
+
+        try {
+            await axios.delete(`http://localhost:3000/api/books/${bookId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setSuccess("Kniha bola úspešne vymazaná!");
+            fetchBooks();
+        } catch (err) {
+            setError(err.response?.data?.error || "Chyba pri mazaní knihy");
+        }
+    };
+
     return (
         <div className="container mt-5">
             <div className="row">
@@ -266,10 +282,16 @@ const AdminBooks = () => {
                                                     </td>
                                                     <td className="text-center">
                                                         <button
-                                                            className="btn btn-sm btn-outline-primary"
+                                                            className="btn btn-sm btn-outline-primary me-1"
                                                             onClick={() => handleEdit(book)}
                                                         >
                                                             Upraviť
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-outline-danger"
+                                                            onClick={() => handleDelete(book.book_id, book.title)}
+                                                        >
+                                                            Vymazať
                                                         </button>
                                                     </td>
                                                 </tr>

@@ -1,69 +1,59 @@
-/*
-:root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+/* Vlastné CSS Pravidlá */
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+/* 1. Farba textu pre muted */
+.text-muted {
+    color: #888888 !important;
 }
 
-a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-}
-a:hover {
-    color: #535bf2;
+/* 2. Farba pozadia pre card-body */
+.card-body {
+    background-color: white;
 }
 
-body {
-    margin: 0;
-    display: flex;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
+/* 3. Farba pozadia pre card-header */
+.card-header {
+    background-color: #e7f3ff;
+    font-weight: bold;
 }
 
-h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
+/* 4. Veľkosť písma pre tlačidlá */
+.btn {
+    font-size: 17px;
 }
 
-button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-}
-button:hover {
-    border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+/* 5. Farba pozadia pre primárne tlačidlo */
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
 }
 
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-    a:hover {
-        color: #747bff;
-    }
-    button {
-        background-color: #f9f9f9;
-    }
-}*/
+/* 6. Farba pre label */
+.form-label {
+    color: #333333;
+    font-weight: 600;
+}
+
+/* 7. Border pre input polia */
+.form-control {
+    border: 2px solid #ced4da;
+}
+
+/* 8. Farba pozadia pre alert-danger */
+.alert-danger {
+    background-color: #ffe6e6;
+}
+
+/* 9. Animácia pri hover na karte */
+.card {
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+/* 10. Zaoblené spodné rohy pre karty */
+.card-body {
+    border-radius: 12px;
+}
