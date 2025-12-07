@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
             return res.status(400).json({ error: "Používateľ s týmto emailom už existuje." });
         }
 
-        // Uloženie (bez hashovania podľa zadania)
+        // Vytvorenie nového používateľa
         const newUser = await pool.query(
             "INSERT INTO users (email, password, role) VALUES ($1, $2, 'user') RETURNING user_id, email, role",
             [email, password]
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: "Nesprávny email alebo heslo." });
         }
 
-        // Porovnanie hesla (Plain text)
+        // Overenie hesla
         if (password !== user.rows[0].password) {
             return res.status(401).json({ error: "Nesprávny email alebo heslo." });
         }

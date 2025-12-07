@@ -32,7 +32,7 @@ const AdminBooks = () => {
                 const res = await api.get("/auth/profile");
                 setProfile(res.data);
 
-                // Redirect non-administrators to home
+                // Presmerovanie ne-administrátorov na domovskú stránku
                 if (res.data.role !== 'administrator') {
                     navigate("/home");
                 }
@@ -66,12 +66,12 @@ const AdminBooks = () => {
 
         try {
             if (editingBook) {
-                // Update existing book
+                // Aktualizácia existujúcej knihy
                 await api.put(`/books/${editingBook.book_id}`, formData);
                 setSuccess("Kniha bola úspešne aktualizovaná!");
                 setEditingBook(null);
             } else {
-                // Add new book
+                // Pridanie novej knihy
                 await api.post("/books", formData);
                 setSuccess("Kniha bola úspešne pridaná!");
             }

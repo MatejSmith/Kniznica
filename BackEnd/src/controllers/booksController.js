@@ -1,21 +1,21 @@
 const pool = require('../config/db');
 const validator = require('validator');
 
-// Add a new book (admin only)
+// Pridanie novej knihy (len pre administrátorov)
 exports.addBook = async (req, res) => {
     const { title, author, isbn, description, cover_image, total_copies, available_copies } = req.body;
 
-    // Validation
+    // Validácia
     if (!title || !author || !isbn) {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
-    // Validate ISBN format (ISBN-10 or ISBN-13)
+    // Validácia formátu ISBN (ISBN-10 alebo ISBN-13)
     if (!validator.isISBN(isbn)) {
         return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
     }
 
-    // Validate copies logic
+    // Validácia logiky kópií
     const totalCopies = parseInt(total_copies) || 1;
     const availableCopies = parseInt(available_copies) || 1;
 
@@ -35,14 +35,14 @@ exports.addBook = async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        if (err.code === '23505') { // Unique constraint violation
+        if (err.code === '23505') { // Porušenie unique constraintu
             return res.status(400).json({ error: "Kniha s týmto ISBN už existuje." });
         }
         res.status(500).send("Chyba servera");
     }
 };
 
-// Get all books
+// Získanie všetkých kníh
 exports.getAllBooks = async (req, res) => {
     try {
         const books = await pool.query("SELECT * FROM books ORDER BY created_at DESC");
@@ -53,22 +53,22 @@ exports.getAllBooks = async (req, res) => {
     }
 };
 
-// Update a book (admin only)
+// Aktualizácia knihy (len pre administrátorov)
 exports.updateBook = async (req, res) => {
     const { id } = req.params;
     const { title, author, isbn, description, cover_image, total_copies, available_copies } = req.body;
 
-    // Validation
+    // Validácia
     if (!title || !author || !isbn) {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
-    // Validate ISBN format (ISBN-10 or ISBN-13)
+    // Validácia formátu ISBN (ISBN-10 alebo ISBN-13)
     if (!validator.isISBN(isbn)) {
         return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
     }
 
-    // Validate copies logic
+    // Validácia logiky kópií
     const totalCopies = parseInt(total_copies) || 1;
     const availableCopies = parseInt(available_copies) || 1;
 
@@ -102,7 +102,7 @@ exports.updateBook = async (req, res) => {
     }
 };
 
-// Delete a book (admin only)
+// Vymazanie knihy (len pre administrátorov)
 exports.deleteBook = async (req, res) => {
     const { id } = req.params;
 

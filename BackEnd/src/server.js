@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Routes
+// Routy
 app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
 

@@ -20,7 +20,7 @@ const Home = () => {
                 const res = await api.get("/auth/profile");
                 setProfile(res.data);
 
-                // Redirect administrators to admin books page
+                // Presmerovanie administrátorov na admin stránku
                 if (res.data.role === 'administrator') {
                     navigate("/admin/books");
                 }

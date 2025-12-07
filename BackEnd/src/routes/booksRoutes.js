@@ -2,7 +2,7 @@ const router = require('express').Router();
 const booksController = require('../controllers/booksController');
 const jwt = require('jsonwebtoken');
 
-// Middleware to verify token
+// Middleware na overenie tokenu
 const verifyToken = (req, res, next) => {
     const token = req.header("Authorization");
     if (!token) return res.status(403).json({ error: "Prístup odmietnutý." });
@@ -15,7 +15,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Middleware to verify admin role
+// Middleware na overenie roly administrátora
 const verifyAdmin = (req, res, next) => {
     if (req.user.role !== 'administrator') {
         return res.status(403).json({ error: "Prístup len pre administrátorov." });
