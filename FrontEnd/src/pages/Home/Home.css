@@ -1,11 +1,9 @@
-/* Custom CSS for Home Page */
-
-/* Pointer cursor for interactive book cards */
+/* Kurzor pointer pre interaktívne karty kníh */
 .home-page .card {
     cursor: pointer;
 }
 
-/* Enhanced hover shadow effect for book cards */
+/* Vylepšený efekt tieňa pri hover pre karty kníh */
 .home-page .card:hover {
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25) !important;
 }

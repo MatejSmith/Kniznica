@@ -1,22 +1,20 @@
-/* Custom CSS for Register Page */
-
-/* Subtle gradient background for the card */
+/* Jemné gradientové pozadie pre kartu */
 .register-page .card {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
 
-/* Custom placeholder styling with reduced opacity */
+/* Vlastné štýlovanie placeholderov so zníženou priehľadnosťou */
 .register-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;
 }
 
-/* Additional padding for better spacing */
+/* Dodatočný padding pre lepšie rozostupy */
 .register-page .form-control {
     padding: 0.75rem 1rem;
 }
 
-/* add focus style on input field */
+/* Pridanie štýlu focus na vstupné pole */
 .register-page .form-control:focus {
     box-shadow: none;
     border-color: #80bdff;

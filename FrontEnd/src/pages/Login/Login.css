@@ -1,17 +1,15 @@
-/* Custom CSS for Login Page */
-
-/* Letter spacing for heading to make it more elegant */
+/* Medzery medzi písmenami pre nadpis pre eleganciu */
 .login-page h2 {
     letter-spacing: 1.5px;
 }
 
-/* add style when user click on input field */
+/* Pridanie štýlu pri kliknutí na vstupné pole */
 .login-page .form-control:focus {
     box-shadow: none;
     border-color: #80bdff;
 }
 
-/* Custom placeholder styling with reduced opacity */
+/* Vlastné štýlovanie placeholderov so zníženou priehľadnosťou */
 .login-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;
