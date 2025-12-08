@@ -42,6 +42,19 @@ const Register = () => {
             setError("Heslo musí mať aspoň 6 znakov.");
             return;
         }
+        // Kontrola sily hesla
+        if (!/[A-Z]/.test(formData.password)) {
+            setError("Heslo musí obsahovať aspoň jedno veľké písmeno.");
+            return;
+        }
+        if (!/[a-z]/.test(formData.password)) {
+            setError("Heslo musí obsahovať aspoň jedno malé písmeno.");
+            return;
+        }
+        if (!/[0-9]/.test(formData.password)) {
+            setError("Heslo musí obsahovať aspoň jedno číslo.");
+            return;
+        }
 
         try {
             await api.post("/auth/register", {
@@ -83,7 +96,7 @@ const Register = () => {
                                         className="form-control form-control-lg"
                                         required
                                         onChange={handleChange}
-                                        placeholder="Minimálne 6 znakov"
+                                        placeholder="Min. 6 znakov, veľké/malé písmeno, číslo"
                                     />
                                 </div>
                                 <div className="mb-4">

@@ -19,6 +19,23 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+
+        // Klientska validácia
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError("Neplatný formát emailu.");
+            return;
+        }
+        if (email.length > 254) {
+            setError("Email je príliš dlhý (maximum 254 znakov).");
+            return;
+        }
+        if (password.length < 6) {
+            setError("Heslo musí mať aspoň 6 znakov.");
+            return;
+        }
+
         try {
             const res = await api.post("/auth/login", { email, password });
             login(res.data.token);

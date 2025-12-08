@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
-const validator = require('validator');
 
 // Registrácia (CREATE)
 exports.register = async (req, res) => {
@@ -10,7 +9,8 @@ exports.register = async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ error: "Všetky polia sú povinné." });
     }
-    if (!validator.isEmail(email)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
         return res.status(400).json({ error: "Neplatný formát emailu." });
     }
     if (email.length > 254) {
@@ -18,6 +18,16 @@ exports.register = async (req, res) => {
     }
     if (password.length < 6) {
         return res.status(400).json({ error: "Heslo musí mať aspoň 6 znakov." });
+    }
+    // Kontrola sily hesla
+    if (!/[A-Z]/.test(password)) {
+        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno veľké písmeno." });
+    }
+    if (!/[a-z]/.test(password)) {
+        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno malé písmeno." });
+    }
+    if (!/[0-9]/.test(password)) {
+        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno číslo." });
     }
 
     try {
