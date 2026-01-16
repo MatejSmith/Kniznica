@@ -58,7 +58,7 @@ const Home = () => {
                 ) : (
                     books.map((book) => (
                         <div className="col" key={book.book_id}>
-                            <div className="card h-100 shadow-sm">
+                            <div className="card h-100 shadow-sm book-card" onClick={() => navigate(`/books/${book.book_id}`)} style={{ cursor: 'pointer' }}>
                                 {book.cover_image && (
                                     <img
                                         src={book.cover_image}
@@ -77,19 +77,12 @@ const Home = () => {
                                                 : book.description}
                                         </p>
                                     )}
-                                    <p className="card-text mb-2">
-                                        <small className="text-muted">ISBN: {book.isbn}</small>
-                                    </p>
                                 </div>
-                                <div className="card-footer bg-white border-top-0">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <span className={`badge ${book.available_copies > 0 ? 'bg-success' : 'bg-danger'}`}>
-                                            {book.available_copies > 0 ? 'Dostupné' : 'Nedostupné'}
-                                        </span>
-                                        <small className="text-muted">
-                                            {book.available_copies}/{book.total_copies} ks
-                                        </small>
-                                    </div>
+                                <div className="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                                    <span className={`badge ${book.available_copies > 0 ? 'bg-success' : 'bg-danger'}`}>
+                                        {book.available_copies > 0 ? 'Dostupné' : 'Nedostupné'}
+                                    </span>
+                                    <button className="btn btn-outline-primary btn-sm">Detail</button>
                                 </div>
                             </div>
                         </div>

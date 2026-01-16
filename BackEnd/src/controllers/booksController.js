@@ -123,3 +123,68 @@ exports.deleteBook = async (req, res) => {
         res.status(500).send("Chyba servera");
     }
 };
+
+// Získanie detailu jednej knihy
+exports.getBookById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const book = await pool.query("SELECT * FROM books WHERE book_id = $1", [id]);
+        if (book.rows.length === 0) {
+            return res.status(404).json({ error: "Kniha nebola nájdená." });
+        }
+        res.json(book.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Chyba servera");
+    }
+};
+
+// Rezervácia knihy
+exports.reserveBook = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.user_id;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // Kontrola dostupnosti
+        const bookCheck = await client.query(
+            "SELECT available_copies FROM books WHERE book_id = $1 FOR UPDATE",
+            [id]
+        );
+
+        if (bookCheck.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: "Kniha nebola nájdená." });
+        }
+
+        if (bookCheck.rows[0].available_copies <= 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: "Kniha nie je dostupná na rezerváciu." });
+        }
+
+        // Vytvorenie rezervácie
+        await client.query(
+            "INSERT INTO reservations (user_id, book_id) VALUES ($1, $2)",
+            [userId, id]
+        );
+
+        // Zníženie počtu dostupných kusov
+        await client.query(
+            "UPDATE books SET available_copies = available_copies - 1 WHERE book_id = $1",
+            [id]
+        );
+
+        await client.query('COMMIT');
+        res.status(201).json({ message: "Kniha bola úspešne rezervovaná." });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err.message);
+        res.status(500).send("Chyba servera pri rezervácii.");
+    } finally {
+        client.release();
+    }
+};

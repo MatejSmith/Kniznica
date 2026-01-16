@@ -1,0 +1,39 @@
+.book-detail {
+    max-width: 1000px;
+    margin-bottom: 3rem;
+}
+
+.book-detail .card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.book-detail h1 {
+    color: #333;
+}
+
+.book-detail .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.book-detail .btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-detail .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+}
+
+.book-detail .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .book-detail h1 {
+        font-size: 2rem;
+    }
+}
