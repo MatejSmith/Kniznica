@@ -6,7 +6,7 @@ import "./Register.css";
 
 const Register = () => {
     const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
-    const [error, setError] = useState("");
+    const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
 
@@ -22,37 +22,35 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
+        setErrors([]);
 
         // Klientska validácia
+        const localErrors = [];
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
-            setError("Neplatný formát emailu.");
-            return;
+            localErrors.push("Neplatný formát emailu.");
         }
         if (formData.email.length > 254) {
-            setError("Email je príliš dlhý (maximum 254 znakov).");
-            return;
+            localErrors.push("Email je príliš dlhý (maximum 254 znakov).");
         }
         if (formData.password !== formData.confirmPassword) {
-            setError("Heslá sa nezhodujú!");
-            return;
+            localErrors.push("Heslá sa nezhodujú!");
         }
         if (formData.password.length < 6) {
-            setError("Heslo musí mať aspoň 6 znakov.");
-            return;
+            localErrors.push("Heslo musí mať aspoň 6 znakov.");
         }
-        // Kontrola sily hesla
         if (!/[A-Z]/.test(formData.password)) {
-            setError("Heslo musí obsahovať aspoň jedno veľké písmeno.");
-            return;
+            localErrors.push("Heslo musí obsahovať aspoň jedno veľké písmeno.");
         }
         if (!/[a-z]/.test(formData.password)) {
-            setError("Heslo musí obsahovať aspoň jedno malé písmeno.");
-            return;
+            localErrors.push("Heslo musí obsahovať aspoň jedno malé písmeno.");
         }
         if (!/[0-9]/.test(formData.password)) {
-            setError("Heslo musí obsahovať aspoň jedno číslo.");
+            localErrors.push("Heslo musí obsahovať aspoň jedno číslo.");
+        }
+
+        if (localErrors.length > 0) {
+            setErrors(localErrors);
             return;
         }
 
@@ -63,7 +61,12 @@ const Register = () => {
             });
             navigate("/login");
         } catch (err) {
-            setError(err.response?.data?.error || "Chyba pri registrácii");
+            // Podpora pre nové pole errors zo servera
+            if (Array.isArray(err.response?.data?.errors)) {
+                setErrors(err.response.data.errors);
+            } else {
+                setErrors([err.response?.data?.error || "Chyba pri registrácii"]);
+            }
         }
     };
 
@@ -74,7 +77,15 @@ const Register = () => {
                     <div className="card shadow-lg border-0 rounded-3">
                         <div className="card-body p-5">
                             <h2 className="text-center mb-4 fw-bold text-secondary">Registrácia</h2>
-                            {error && <div className="alert alert-danger text-center" role="alert">{error}</div>}
+                            {errors.length > 0 && (
+                                <div className="alert alert-danger text-center" role="alert">
+                                    <ul className="mb-0" style={{ listStyle: "none", padding: 0 }}>
+                                        {errors.map((err, idx) => (
+                                            <li key={idx}>{err}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
                                     <label className="form-label text-muted">Email</label>

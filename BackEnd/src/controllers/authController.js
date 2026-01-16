@@ -4,37 +4,42 @@ const jwt = require('jsonwebtoken');
 // Registrácia (CREATE)
 exports.register = async (req, res) => {
     const { email, password } = req.body;
+    const errors = [];
 
     // Serverová validácia
     if (!email || !password) {
-        return res.status(400).json({ error: "Všetky polia sú povinné." });
+        errors.push("Všetky polia sú povinné.");
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: "Neplatný formát emailu." });
+    if (email && !emailRegex.test(email)) {
+        errors.push("Neplatný formát emailu.");
     }
-    if (email.length > 254) {
-        return res.status(400).json({ error: "Email je príliš dlhý (maximum 254 znakov)." });
+    if (email && email.length > 254) {
+        errors.push("Email je príliš dlhý (maximum 254 znakov).");
     }
-    if (password.length < 6) {
-        return res.status(400).json({ error: "Heslo musí mať aspoň 6 znakov." });
+    if (password && password.length < 6) {
+        errors.push("Heslo musí mať aspoň 6 znakov.");
     }
     // Kontrola sily hesla
-    if (!/[A-Z]/.test(password)) {
-        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno veľké písmeno." });
+    if (password && !/[A-Z]/.test(password)) {
+        errors.push("Heslo musí obsahovať aspoň jedno veľké písmeno.");
     }
-    if (!/[a-z]/.test(password)) {
-        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno malé písmeno." });
+    if (password && !/[a-z]/.test(password)) {
+        errors.push("Heslo musí obsahovať aspoň jedno malé písmeno.");
     }
-    if (!/[0-9]/.test(password)) {
-        return res.status(400).json({ error: "Heslo musí obsahovať aspoň jedno číslo." });
+    if (password && !/[0-9]/.test(password)) {
+        errors.push("Heslo musí obsahovať aspoň jedno číslo.");
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
     }
 
     try {
         // Kontrola existencie emailu
         const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
         if (userExists.rows.length > 0) {
-            return res.status(400).json({ error: "Používateľ s týmto emailom už existuje." });
+            return res.status(400).json({ errors: ["Používateľ s týmto emailom už existuje."] });
         }
 
         // Vytvorenie nového používateľa
