@@ -12,12 +12,26 @@ const BookDetail = () => {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
+    const [isReserved, setIsReserved] = useState(false);
 
     useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
         const fetchBook = async () => {
             try {
                 const res = await api.get(`/books/${id}`);
                 setBook(res.data);
+
+                if (token) {
+                    const resReservation = await api.get(`/books/${id}/reservation`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setIsReserved(resReservation.data.reserved);
+                }
+
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching book:", err);
@@ -27,7 +41,7 @@ const BookDetail = () => {
         };
 
         fetchBook();
-    }, [id]);
+    }, [id, token]);
 
     const handleReserve = async () => {
         if (!token) {
@@ -40,11 +54,27 @@ const BookDetail = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMessage(res.data.message);
+            setIsReserved(true);
             // Refresh book data to update available copies
             const updatedBook = await api.get(`/books/${id}`);
             setBook(updatedBook.data);
         } catch (err) {
             setError(err.response?.data?.error || "Chyba pri rezervácii.");
+        }
+    };
+
+    const handleCancelReservation = async () => {
+        try {
+            const res = await api.delete(`/books/${id}/reserve`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMessage(res.data.message);
+            setIsReserved(false);
+            // Refresh book data
+            const updatedBook = await api.get(`/books/${id}`);
+            setBook(updatedBook.data);
+        } catch (err) {
+            setError(err.response?.data?.error || "Chyba pri rušení rezervácie.");
         }
     };
 
@@ -110,13 +140,22 @@ const BookDetail = () => {
                             </div>
 
                             <div className="d-grid gap-2 d-md-flex justify-content-md-start">
-                                <button
-                                    onClick={handleReserve}
-                                    className="btn btn-primary btn-lg px-5 py-3 shadow"
-                                    disabled={book.available_copies <= 0}
-                                >
-                                    {book.available_copies > 0 ? 'Rezervovať knihu' : 'Momentálne nedostupná'}
-                                </button>
+                                {isReserved ? (
+                                    <button
+                                        onClick={handleCancelReservation}
+                                        className="btn btn-danger btn-lg px-5 py-3 shadow"
+                                    >
+                                        Zrušiť rezerváciu
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleReserve}
+                                        className="btn btn-primary btn-lg px-5 py-3 shadow"
+                                        disabled={book.available_copies <= 0}
+                                    >
+                                        {book.available_copies > 0 ? 'Rezervovať knihu' : 'Momentálne nedostupná'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -155,6 +155,17 @@ exports.reserveBook = async (req, res) => {
             [id]
         );
 
+        // Kontrola existencie rezervácie
+        const existingReservation = await client.query(
+            "SELECT * FROM reservations WHERE user_id = $1 AND book_id = $2",
+            [userId, id]
+        );
+
+        if (existingReservation.rows.length > 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: "Túto knihu už máte rezervovanú." });
+        }
+
         if (bookCheck.rows.length === 0) {
             await client.query('ROLLBACK');
             return res.status(404).json({ error: "Kniha nebola nájdená." });
@@ -184,6 +195,68 @@ exports.reserveBook = async (req, res) => {
         await client.query('ROLLBACK');
         console.error(err.message);
         res.status(500).send("Chyba servera pri rezervácii.");
+    } finally {
+        client.release();
+    }
+};
+
+// Kontrola, či má používateľ rezervovanú knihu
+exports.checkReservation = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.user_id;
+
+    try {
+        const check = await pool.query(
+            "SELECT * FROM reservations WHERE user_id = $1 AND book_id = $2",
+            [userId, id]
+        );
+        res.json({ reserved: check.rows.length > 0 });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Chyba servera.");
+    }
+};
+
+// Zrušenie rezervácie
+exports.cancelReservation = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.user_id;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // Kontrola existencie rezervácie s lockom pre konzistenciu
+        const reservationCheck = await client.query(
+            "SELECT * FROM reservations WHERE user_id = $1 AND book_id = $2 FOR UPDATE",
+            [userId, id]
+        );
+
+        if (reservationCheck.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: "Rezervácia neexistuje." });
+        }
+
+        // Vymazanie rezervácie
+        await client.query(
+            "DELETE FROM reservations WHERE user_id = $1 AND book_id = $2",
+            [userId, id]
+        );
+
+        // Vrátenie kópie (inkrementácia)
+        await client.query(
+            "UPDATE books SET available_copies = available_copies + 1 WHERE book_id = $1",
+            [id]
+        );
+
+        await client.query('COMMIT');
+        res.json({ message: "Rezervácia bola úspešne zrušená." });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err.message);
+        res.status(500).send("Chyba servera pri rušení rezervácie.");
     } finally {
         client.release();
     }

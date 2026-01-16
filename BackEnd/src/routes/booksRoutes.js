@@ -25,9 +25,12 @@ const verifyAdmin = (req, res, next) => {
 
 router.post('/', verifyToken, verifyAdmin, booksController.addBook);
 router.get('/', booksController.getAllBooks);
-router.get('/:id', booksController.getBookById);
+router.get('/:id', verifyToken, booksController.getBookById);
 router.post('/:id/reserve', verifyToken, booksController.reserveBook);
 router.put('/:id', verifyToken, verifyAdmin, booksController.updateBook);
 router.delete('/:id', verifyToken, verifyAdmin, booksController.deleteBook);
+router.get('/:id/reservation', verifyToken, booksController.checkReservation);
+router.delete('/:id/reserve', verifyToken, booksController.cancelReservation);
+
 
 module.exports = router;
