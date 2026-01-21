@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const { login, token } = useContext(AuthContext);
@@ -22,13 +22,8 @@ const Login = () => {
         setError("");
 
         // Klientska validácia
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Neplatný formát emailu.");
-            return;
-        }
-        if (email.length > 254) {
-            setError("Email je príliš dlhý (maximum 254 znakov).");
+        if (identifier.length < 3) {
+            setError("Email alebo užívateľské meno musí mať aspoň 3 znaky.");
             return;
         }
         if (password.length < 6) {
@@ -37,11 +32,11 @@ const Login = () => {
         }
 
         try {
-            const res = await api.post("/auth/login", { email, password });
+            const res = await api.post("/auth/login", { identifier, password });
             login(res.data.token);
             navigate("/home");
         } catch (err) {
-            setError("Nesprávne meno alebo heslo");
+            setError(err.response?.data?.error || "Nesprávne prihlasovacie údaje");
         }
     };
 
@@ -55,15 +50,14 @@ const Login = () => {
                             {error && <div className="alert alert-danger text-center" role="alert">{error}</div>}
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label className="form-label text-muted">Email</label>
+                                    <label className="form-label text-muted">Email alebo Užívateľské meno</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         className="form-control form-control-lg"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={identifier}
+                                        onChange={(e) => setIdentifier(e.target.value)}
                                         required
-                                        maxLength={254}
-                                        placeholder="name@example.com"
+                                        placeholder="email@example.com alebo username"
                                     />
                                 </div>
                                 <div className="mb-4">
@@ -86,5 +80,6 @@ const Login = () => {
         </div>
     );
 };
+
 
 export default Login;

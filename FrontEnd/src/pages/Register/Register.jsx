@@ -5,7 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 import "./Register.css";
 
 const Register = () => {
-    const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
+    const [formData, setFormData] = useState({ email: "", username: "", password: "", confirmPassword: "" });
     const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
@@ -33,6 +33,16 @@ const Register = () => {
         if (formData.email.length > 254) {
             localErrors.push("Email je príliš dlhý (maximum 254 znakov).");
         }
+
+        // Validácia username
+        if (formData.username.length < 3 || formData.username.length > 50) {
+            localErrors.push("Užívateľské meno musí mať 3 až 50 znakov.");
+        }
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (!usernameRegex.test(formData.username)) {
+            localErrors.push("Užívateľské meno môže obsahovať iba písmená, čísla a podčiarkovník.");
+        }
+
         if (formData.password !== formData.confirmPassword) {
             localErrors.push("Heslá sa nezhodujú!");
         }
@@ -57,6 +67,7 @@ const Register = () => {
         try {
             await api.post("/auth/register", {
                 email: formData.email,
+                username: formData.username,
                 password: formData.password
             });
             navigate("/login");
@@ -87,6 +98,19 @@ const Register = () => {
                                 </div>
                             )}
                             <form onSubmit={handleSubmit}>
+                                <div className="mb-3">
+                                    <label className="form-label text-muted">Užívateľské meno</label>
+                                    <input
+                                        type="text"
+                                        name="username"
+                                        className="form-control form-control-lg"
+                                        required
+                                        minLength={3}
+                                        maxLength={50}
+                                        onChange={handleChange}
+                                        placeholder="Tvoj username"
+                                    />
+                                </div>
                                 <div className="mb-3">
                                     <label className="form-label text-muted">Email</label>
                                     <input
@@ -130,5 +154,6 @@ const Register = () => {
         </div>
     );
 };
+
 
 export default Register;

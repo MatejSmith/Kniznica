@@ -3,11 +3,11 @@ const jwt = require('jsonwebtoken');
 
 // Registrácia (CREATE)
 exports.register = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
     const errors = [];
 
     // Serverová validácia
-    if (!email || !password) {
+    if (!email || !password || !username) {
         errors.push("Všetky polia sú povinné.");
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,6 +17,16 @@ exports.register = async (req, res) => {
     if (email && email.length > 254) {
         errors.push("Email je príliš dlhý (maximum 254 znakov).");
     }
+
+    // Validácia username
+    if (username && (username.length < 3 || username.length > 50)) {
+        errors.push("Užívateľské meno musí mať 3 až 50 znakov.");
+    }
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (username && !usernameRegex.test(username)) {
+        errors.push("Užívateľské meno môže obsahovať iba písmená, čísla a podčiarkovník.");
+    }
+
     if (password && password.length < 6) {
         errors.push("Heslo musí mať aspoň 6 znakov.");
     }
@@ -36,16 +46,23 @@ exports.register = async (req, res) => {
     }
 
     try {
-        // Kontrola existencie emailu
-        const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        // Kontrola existencie emailu alebo username
+        const userExists = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $2", [email, username]);
         if (userExists.rows.length > 0) {
-            return res.status(400).json({ errors: ["Používateľ s týmto emailom už existuje."] });
+            const existingUser = userExists.rows[0];
+            if (existingUser.email === email) {
+                errors.push("Používateľ s týmto emailom už existuje.");
+            }
+            if (existingUser.username === username) {
+                errors.push("Toto užívateľské meno je už obsadené.");
+            }
+            return res.status(400).json({ errors });
         }
 
         // Vytvorenie nového používateľa
         const newUser = await pool.query(
-            "INSERT INTO users (email, password, role) VALUES ($1, $2, 'user') RETURNING user_id, email, role",
-            [email, password]
+            "INSERT INTO users (email, password, username, role) VALUES ($1, $2, $3, 'user') RETURNING user_id, email, username, role",
+            [email, password, username]
         );
 
         res.status(201).json({ message: "Registrácia úspešná", user: newUser.rows[0] });
@@ -58,18 +75,23 @@ exports.register = async (req, res) => {
 
 // Login (READ/Verify)
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
+        return res.status(400).json({ error: "Zadajte prihlasovacie meno a heslo." });
+    }
 
     try {
-        const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        // Hľadanie podľa emailu ALEBO username
+        const user = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $1", [identifier]);
 
         if (user.rows.length === 0) {
-            return res.status(401).json({ error: "Nesprávny email alebo heslo." });
+            return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
-        // Overenie hesla
+        // Overenie hesla (v produkcii by tu mal byť bcrypt.compare)
         if (password !== user.rows[0].password) {
-            return res.status(401).json({ error: "Nesprávny email alebo heslo." });
+            return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
         // Generovanie JWT
@@ -79,7 +101,14 @@ exports.login = async (req, res) => {
             { expiresIn: "1h" }
         );
 
-        res.json({ token, user: { email: user.rows[0].email, role: user.rows[0].role } });
+        res.json({
+            token,
+            user: {
+                email: user.rows[0].email,
+                username: user.rows[0].username,
+                role: user.rows[0].role
+            }
+        });
 
     } catch (err) {
         console.error(err.message);
@@ -91,7 +120,7 @@ exports.login = async (req, res) => {
 exports.getProfile = async (req, res) => {
     try {
         // req.user je nastavený cez middleware overenia tokenu
-        const user = await pool.query("SELECT user_id, email, role, created_at FROM users WHERE user_id = $1", [req.user.user_id]);
+        const user = await pool.query("SELECT user_id, email, username, role, created_at FROM users WHERE user_id = $1", [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error(err.message);
