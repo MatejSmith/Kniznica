@@ -278,3 +278,23 @@ exports.cancelReservation = async (req, res) => {
         client.release();
     }
 };
+
+// Získanie rezervácií prihláseného používateľa
+exports.getUserReservations = async (req, res) => {
+    const userId = req.user.user_id;
+
+    try {
+        const reservations = await pool.query(`
+            SELECT r.reservation_id, r.reservation_date, b.book_id, b.title, b.author, b.cover_image, b.isbn
+            FROM reservations r
+            JOIN books b ON r.book_id = b.book_id
+            WHERE r.user_id = $1
+            ORDER BY r.reservation_date DESC
+        `, [userId]);
+
+        res.json(reservations.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Chyba servera pri získavaní rezervácií.");
+    }
+};

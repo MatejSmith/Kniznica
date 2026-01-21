@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home";
 import AdminBooks from "./pages/AdminBooks/AdminBooks";
 import BookDetail from "./pages/BookDetail/BookDetail";
 import Profile from "./pages/Profile/Profile";
+import MyReservations from "./pages/MyReservations/MyReservations";
 import { AuthProvider } from "./context/AuthContext";
 import './App.css';
 
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/books/:id" element={<BookDetail />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/my-reservations" element={<MyReservations />} />
                     <Route path="/admin/books" element={<AdminBooks />} />
                 </Routes>
             </Router>

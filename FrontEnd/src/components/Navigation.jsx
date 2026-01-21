@@ -26,6 +26,9 @@ const Navigation = () => {
                         ) : (
                             <>
                                 <li className="nav-item">
+                                    <Link className="nav-link me-3" to="/my-reservations">Moje rezervácie</Link>
+                                </li>
+                                <li className="nav-item">
                                     <Link className="nav-link me-3" to="/profile">Môj profil</Link>
                                 </li>
                                 <li className="nav-item">

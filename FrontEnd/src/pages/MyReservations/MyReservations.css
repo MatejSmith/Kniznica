@@ -1,0 +1,22 @@
+.reservation-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.reservation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.my-reservations .alert {
+    border-radius: 0.75rem;
+    border: none;
+}
+
+.my-reservations .btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%);
+    border: none;
+}
+
+.my-reservations .btn-outline-primary {
+    border-width: 2px;
+}
