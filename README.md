@@ -19,7 +19,7 @@ Pred inštaláciou je potrebné mať nainštalované:
 
 Naklonujte repozitár pomocou Git:
 ```bash
-git clone <URL_REPOZITÁRA>
+git clone https://github.com/MatejSmith/Kniznica.git
 cd Kniznica
 ```
 

@@ -21,7 +21,7 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        // Klientska validácia
+        
         if (identifier.length < 3) {
             setError("Email alebo užívateľské meno musí mať aspoň 3 znaky.");
             return;

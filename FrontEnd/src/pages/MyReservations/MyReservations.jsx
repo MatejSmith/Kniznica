@@ -42,7 +42,6 @@ const MyReservations = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMessage("Rezervácia bola úspešne zrušená.");
-            // Refresh list
             fetchReservations();
         } catch (err) {
             console.error("Error canceling reservation:", err);

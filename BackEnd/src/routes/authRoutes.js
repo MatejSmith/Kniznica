@@ -2,7 +2,7 @@ const router = require('express').Router();
 const authController = require('../controllers/authController');
 const jwt = require('jsonwebtoken');
 
-// Middleware na overenie tokenu
+
 const verifyToken = (req, res, next) => {
     const token = req.header("Authorization");
     if (!token) return res.status(403).json({ error: "Prístup odmietnutý." });

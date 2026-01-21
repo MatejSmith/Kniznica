@@ -1,20 +1,19 @@
-/* Jemné gradientové pozadie pre kartu */
 .register-page .card {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
 
-/* Vlastné štýlovanie placeholderov so zníženou priehľadnosťou */
+
 .register-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;
 }
 
-/* Dodatočný padding pre lepšie rozostupy */
+
 .register-page .form-control {
     padding: 0.75rem 1rem;
 }
 
-/* Pridanie štýlu focus na vstupné pole */
+
 .register-page .form-control:focus {
     box-shadow: none;
     border-color: #80bdff;

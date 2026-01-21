@@ -2,7 +2,6 @@ const router = require('express').Router();
 const booksController = require('../controllers/booksController');
 const jwt = require('jsonwebtoken');
 
-// Middleware na overenie tokenu
 const verifyToken = (req, res, next) => {
     const token = req.header("Authorization");
     if (!token) return res.status(403).json({ error: "Prístup odmietnutý." });
@@ -15,7 +14,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Middleware na overenie roly administrátora
+
 const verifyAdmin = (req, res, next) => {
     if (req.user.role !== 'administrator') {
         return res.status(403).json({ error: "Prístup len pre administrátorov." });
@@ -26,7 +25,7 @@ const verifyAdmin = (req, res, next) => {
 router.post('/', verifyToken, verifyAdmin, booksController.addBook);
 router.get('/', booksController.getAllBooks);
 router.get('/mine', verifyToken, booksController.getUserReservations);
-router.get('/:id', booksController.getBookById);  // Verejný prístup
+router.get('/:id', booksController.getBookById);  
 router.post('/:id/reserve', verifyToken, booksController.reserveBook);
 router.put('/:id', verifyToken, verifyAdmin, booksController.updateBook);
 router.delete('/:id', verifyToken, verifyAdmin, booksController.deleteBook);

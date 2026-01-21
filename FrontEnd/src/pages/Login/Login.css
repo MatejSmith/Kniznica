@@ -1,15 +1,14 @@
-/* Medzery medzi písmenami pre nadpis pre eleganciu */
 .login-page h2 {
     letter-spacing: 1.5px;
 }
 
-/* Pridanie štýlu pri kliknutí na vstupné pole */
+
 .login-page .form-control:focus {
     box-shadow: none;
     border-color: #80bdff;
 }
 
-/* Vlastné štýlovanie placeholderov so zníženou priehľadnosťou */
+
 .login-page .form-control::placeholder {
     opacity: 0.6;
     font-style: italic;

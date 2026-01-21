@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Vytvorenie axios inštancie s base URL z environment variables
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
     headers: {
@@ -8,7 +7,6 @@ const api = axios.create({
     }
 });
 
-// Request interceptor na pridanie auth tokenu do všetkých requestov
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');

@@ -15,7 +15,7 @@ const BookDetail = () => {
     const [error, setError] = useState(null);
     const [isReserved, setIsReserved] = useState(false);
 
-    // State pre novú recenziu
+    
     const [rating, setRating] = useState(5);
     const [hoverRating, setHoverRating] = useState(0);
     const [comment, setComment] = useState("");
@@ -27,7 +27,7 @@ const BookDetail = () => {
             const res = await api.get(`/books/${id}`);
             setBook(res.data);
 
-            // Kontrola rezervácie len pre prihlásených
+            
             if (token) {
                 try {
                     const resReservation = await api.get(`/books/${id}/reservation`, {

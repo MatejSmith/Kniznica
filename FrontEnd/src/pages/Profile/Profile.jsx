@@ -57,18 +57,18 @@ const Profile = () => {
 
         const localErrors = [];
 
-        // Validácia emailu
+        
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (formData.email && !emailRegex.test(formData.email)) {
             localErrors.push("Neplatný formát emailu.");
         }
 
-        // Validácia užívateľského mena
+        
         if (formData.username && (formData.username.length < 3 || formData.username.length > 50)) {
             localErrors.push("Užívateľské meno musí mať 3 až 50 znakov.");
         }
 
-        // Validácia hesla
+        
         if (formData.password) {
             if (formData.password !== formData.confirmPassword) {
                 localErrors.push("Heslá sa nezhodujú!");
@@ -92,7 +92,7 @@ const Profile = () => {
             return;
         }
 
-        // Zistiť zmeny
+        
         const updates = {};
         if (formData.username !== originalData.username) updates.username = formData.username;
         if (formData.email !== originalData.email) updates.email = formData.email;

@@ -24,7 +24,7 @@ const Register = () => {
         e.preventDefault();
         setErrors([]);
 
-        // Klientska validácia
+        
         const localErrors = [];
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
@@ -34,7 +34,7 @@ const Register = () => {
             localErrors.push("Email je príliš dlhý (maximum 254 znakov).");
         }
 
-        // Validácia username
+        
         if (formData.username.length < 3 || formData.username.length > 50) {
             localErrors.push("Užívateľské meno musí mať 3 až 50 znakov.");
         }
@@ -72,7 +72,7 @@ const Register = () => {
             });
             navigate("/login");
         } catch (err) {
-            // Podpora pre nové pole errors zo servera
+            
             if (Array.isArray(err.response?.data?.errors)) {
                 setErrors(err.response.data.errors);
             } else {

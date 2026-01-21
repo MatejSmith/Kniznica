@@ -1,21 +1,21 @@
 const pool = require('../config/db');
 const validator = require('validator');
 
-// Pridanie novej knihy (len pre administrátorov)
+
 exports.addBook = async (req, res) => {
     const { title, author, isbn, description, cover_image, total_copies, available_copies } = req.body;
 
-    // Validácia
+
     if (!title || !author || !isbn) {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
-    // Validácia formátu ISBN (ISBN-10 alebo ISBN-13)
+
     if (!validator.isISBN(isbn)) {
         return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
     }
 
-    // Validácia logiky kópií
+
     const totalCopies = total_copies !== undefined ? parseInt(total_copies) : 1;
     const availableCopies = available_copies !== undefined ? parseInt(available_copies) : 0;
 
@@ -35,14 +35,14 @@ exports.addBook = async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        if (err.code === '23505') { // Porušenie unique constraintu
+        if (err.code === '23505') {
             return res.status(400).json({ error: "Kniha s týmto ISBN už existuje." });
         }
         res.status(500).send("Chyba servera");
     }
 };
 
-// Získanie všetkých kníh
+
 exports.getAllBooks = async (req, res) => {
     try {
         const books = await pool.query(`
@@ -61,22 +61,22 @@ exports.getAllBooks = async (req, res) => {
     }
 };
 
-// Aktualizácia knihy (len pre administrátorov)
+
 exports.updateBook = async (req, res) => {
     const { id } = req.params;
     const { title, author, isbn, description, cover_image, total_copies, available_copies } = req.body;
 
-    // Validácia
+
     if (!title || !author || !isbn) {
         return res.status(400).json({ error: "Názov, autor a ISBN sú povinné." });
     }
 
-    // Validácia formátu ISBN (ISBN-10 alebo ISBN-13)
+
     if (!validator.isISBN(isbn)) {
         return res.status(400).json({ error: "Neplatný formát ISBN. Použite ISBN-10 alebo ISBN-13." });
     }
 
-    // Validácia logiky kópií
+
     const totalCopies = total_copies !== undefined ? parseInt(total_copies) : 1;
     const availableCopies = available_copies !== undefined ? parseInt(available_copies) : 0;
 
@@ -103,14 +103,14 @@ exports.updateBook = async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        if (err.code === '23505') { // Unique constraint violation
+        if (err.code === '23505') {
             return res.status(400).json({ error: "Kniha s týmto ISBN už existuje." });
         }
         res.status(500).send("Chyba servera");
     }
 };
 
-// Vymazanie knihy (len pre administrátorov)
+
 exports.deleteBook = async (req, res) => {
     const { id } = req.params;
 
@@ -132,7 +132,7 @@ exports.deleteBook = async (req, res) => {
     }
 };
 
-// Získanie detailu jednej knihy
+
 exports.getBookById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -156,7 +156,7 @@ exports.getBookById = async (req, res) => {
     }
 };
 
-// Rezervácia knihy
+
 exports.reserveBook = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.user_id;
@@ -166,13 +166,13 @@ exports.reserveBook = async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // Kontrola dostupnosti
+
         const bookCheck = await client.query(
             "SELECT available_copies FROM books WHERE book_id = $1 FOR UPDATE",
             [id]
         );
 
-        // Kontrola existencie rezervácie
+
         const existingReservation = await client.query(
             "SELECT * FROM reservations WHERE user_id = $1 AND book_id = $2",
             [userId, id]
@@ -193,13 +193,13 @@ exports.reserveBook = async (req, res) => {
             return res.status(400).json({ error: "Kniha nie je dostupná na rezerváciu." });
         }
 
-        // Vytvorenie rezervácie
+
         await client.query(
             "INSERT INTO reservations (user_id, book_id) VALUES ($1, $2)",
             [userId, id]
         );
 
-        // Zníženie počtu dostupných kusov
+
         await client.query(
             "UPDATE books SET available_copies = available_copies - 1 WHERE book_id = $1",
             [id]
@@ -217,7 +217,7 @@ exports.reserveBook = async (req, res) => {
     }
 };
 
-// Kontrola, či má používateľ rezervovanú knihu
+
 exports.checkReservation = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.user_id;
@@ -234,7 +234,7 @@ exports.checkReservation = async (req, res) => {
     }
 };
 
-// Zrušenie rezervácie
+
 exports.cancelReservation = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.user_id;
@@ -244,7 +244,7 @@ exports.cancelReservation = async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // Kontrola existencie rezervácie s lockom pre konzistenciu
+
         const reservationCheck = await client.query(
             "SELECT * FROM reservations WHERE user_id = $1 AND book_id = $2 FOR UPDATE",
             [userId, id]
@@ -255,13 +255,13 @@ exports.cancelReservation = async (req, res) => {
             return res.status(404).json({ error: "Rezervácia neexistuje." });
         }
 
-        // Vymazanie rezervácie
+
         await client.query(
             "DELETE FROM reservations WHERE user_id = $1 AND book_id = $2",
             [userId, id]
         );
 
-        // Vrátenie kópie (inkrementácia)
+
         await client.query(
             "UPDATE books SET available_copies = available_copies + 1 WHERE book_id = $1",
             [id]
@@ -279,7 +279,7 @@ exports.cancelReservation = async (req, res) => {
     }
 };
 
-// Získanie rezervácií prihláseného používateľa
+
 exports.getUserReservations = async (req, res) => {
     const userId = req.user.user_id;
 

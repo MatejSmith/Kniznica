@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-// Pridanie recenzie
+
 exports.addReview = async (req, res) => {
     const { book_id, rating, comment } = req.body;
     const user_id = req.user.user_id;
@@ -14,7 +14,7 @@ exports.addReview = async (req, res) => {
     }
 
     try {
-        // Kontrola, či používateľ už nepridal recenziu na túto knihu
+        
         const existingReview = await pool.query(
             "SELECT * FROM reviews WHERE user_id = $1 AND book_id = $2",
             [user_id, book_id]
@@ -36,7 +36,7 @@ exports.addReview = async (req, res) => {
     }
 };
 
-// Získanie recenzií pre konkrétnu knihu
+
 exports.getReviewsByBook = async (req, res) => {
     const { bookId } = req.params;
 

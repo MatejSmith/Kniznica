@@ -2,12 +2,12 @@ const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Registrácia (CREATE)
+
 exports.register = async (req, res) => {
     const { email, password, username } = req.body;
     const errors = [];
 
-    // Serverová validácia
+    
     if (!email || !password || !username) {
         errors.push("Všetky polia sú povinné.");
     }
@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
         errors.push("Email je príliš dlhý (maximum 254 znakov).");
     }
 
-    // Validácia username
+    
     if (username && (username.length < 3 || username.length > 50)) {
         errors.push("Užívateľské meno musí mať 3 až 50 znakov.");
     }
@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
     if (password && password.length < 6) {
         errors.push("Heslo musí mať aspoň 6 znakov.");
     }
-    // Kontrola sily hesla
+    
     if (password && !/[A-Z]/.test(password)) {
         errors.push("Heslo musí obsahovať aspoň jedno veľké písmeno.");
     }
@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
     }
 
     try {
-        // Kontrola existencie emailu alebo username
+        
         const userExists = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $2", [email, username]);
         if (userExists.rows.length > 0) {
             const existingUser = userExists.rows[0];
@@ -60,11 +60,11 @@ exports.register = async (req, res) => {
             return res.status(400).json({ errors });
         }
 
-        // Hashovanie hesla pred uložením
+        
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Vytvorenie nového používateľa
+        
         const newUser = await pool.query(
             "INSERT INTO users (email, password, username, role) VALUES ($1, $2, $3, 'user') RETURNING user_id, email, username, role",
             [email, hashedPassword, username]
@@ -78,7 +78,7 @@ exports.register = async (req, res) => {
     }
 };
 
-// Login (READ/Verify)
+
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -87,20 +87,20 @@ exports.login = async (req, res) => {
     }
 
     try {
-        // Hľadanie podľa emailu ALEBO username
+        
         const user = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $1", [identifier]);
 
         if (user.rows.length === 0) {
             return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
-        // Overenie hesla pomocou bcrypt
+        
         const isMatch = await bcrypt.compare(password, user.rows[0].password);
         if (!isMatch) {
             return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
-        // Generovanie JWT
+        
         const token = jwt.sign(
             { user_id: user.rows[0].user_id, role: user.rows[0].role },
             process.env.JWT_SECRET,
@@ -122,10 +122,10 @@ exports.login = async (req, res) => {
     }
 };
 
-// Získanie profilu (READ Protected)
+
 exports.getProfile = async (req, res) => {
     try {
-        // req.user je nastavený cez middleware overenia tokenu
+        
         const user = await pool.query("SELECT user_id, email, username, role, created_at FROM users WHERE user_id = $1", [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
@@ -134,13 +134,13 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// Aktualizácia profilu (UPDATE)
+
 exports.updateProfile = async (req, res) => {
     const { email, username, password } = req.body;
     const user_id = req.user.user_id;
     const errors = [];
 
-    // Validácia emailu
+    
     if (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -148,7 +148,7 @@ exports.updateProfile = async (req, res) => {
         }
     }
 
-    // Validácia užívateľského mena
+    
     if (username) {
         if (username.length < 3 || username.length > 50) {
             errors.push("Užívateľské meno musí mať 3 až 50 znakov.");
@@ -159,7 +159,7 @@ exports.updateProfile = async (req, res) => {
         }
     }
 
-    // Validácia hesla (ak je zadané)
+    
     if (password) {
         if (password.length < 6) {
             errors.push("Heslo musí mať aspoň 6 znakov.");
@@ -180,7 +180,7 @@ exports.updateProfile = async (req, res) => {
     }
 
     try {
-        // Kontrola, či email alebo username už nepoužíva niekto iný
+        
         if (email || username) {
             const conflictCheck = await pool.query(
                 "SELECT email, username FROM users WHERE (email = $1 OR username = $2) AND user_id != $3",
@@ -198,7 +198,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // Dynamické zostavenie query
+        
         let querySegments = [];
         let params = [];
         let paramIndex = 1;

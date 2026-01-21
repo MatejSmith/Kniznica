@@ -11,12 +11,12 @@ const Home = () => {
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Stav pre vyhľadávanie a filtre
+    
     const [searchQuery, setSearchQuery] = useState("");
-    const [availabilityFilter, setAvailabilityFilter] = useState("all"); // all, available, unavailable
-    const [sortBy, setSortBy] = useState("newest"); // newest, title, rating
+    const [availabilityFilter, setAvailabilityFilter] = useState("all"); 
+    const [sortBy, setSortBy] = useState("newest"); 
 
-    // Presmerovanie administrátora na admin stránku
+    
     useEffect(() => {
         if (token) {
             const checkAdmin = async () => {
@@ -33,7 +33,7 @@ const Home = () => {
         }
     }, [token, navigate]);
 
-    // Načítanie kníh (bez potreby prihlásenia)
+    
     useEffect(() => {
         const fetchBooks = async () => {
             try {
@@ -49,11 +49,11 @@ const Home = () => {
         fetchBooks();
     }, []);
 
-    // Aplikovanie filtrov a vyhľadávania
+    
     useEffect(() => {
         let result = [...books];
 
-        // Vyhľadávanie podľa názvu alebo autora
+        
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
             result = result.filter(book =>
@@ -63,20 +63,20 @@ const Home = () => {
             );
         }
 
-        // Filter dostupnosti
+        
         if (availabilityFilter === "available") {
             result = result.filter(book => book.available_copies > 0);
         } else if (availabilityFilter === "unavailable") {
             result = result.filter(book => book.available_copies === 0);
         }
 
-        // Zoradenie
+        
         if (sortBy === "title") {
             result.sort((a, b) => a.title.localeCompare(b.title, 'sk'));
         } else if (sortBy === "rating") {
             result.sort((a, b) => Number(b.average_rating) - Number(a.average_rating));
         } else {
-            // newest - podľa dátumu pridania (predvolené)
+            
             result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
 

@@ -1,50 +1,46 @@
-/* Vlastné CSS Pravidlá */
-
-
-/* 1. Farba textu pre muted */
 .text-muted {
     color: #888888 !important;
 }
 
-/* 2. Farba pozadia pre card-body */
+
 .card-body {
     background-color: white;
 }
 
-/* 3. Farba pozadia pre card-header */
+
 .card-header {
     background-color: #e7f3ff;
     font-weight: bold;
 }
 
-/* 4. Veľkosť písma pre tlačidlá */
+
 .btn {
     font-size: 17px;
 }
 
-/* 5. Farba pozadia pre primárne tlačidlo */
+
 .btn-primary {
     background-color: #0056b3;
     border-color: #0056b3;
 }
 
-/* 6. Farba pre label */
+
 .form-label {
     color: #333333;
     font-weight: 600;
 }
 
-/* 7. Border pre input polia */
+
 .form-control {
     border: 2px solid #ced4da;
 }
 
-/* 8. Farba pozadia pre alert-danger */
+
 .alert-danger {
     background-color: #ffe6e6;
 }
 
-/* 9. Animácia pri hover na karte */
+
 .card {
     transition: transform 0.3s;
 }
@@ -53,7 +49,7 @@
     transform: translateY(-10px);
 }
 
-/* 10. Zaoblené spodné rohy pre karty */
+
 .card-body {
     border-radius: 12px;
 }
