@@ -13,7 +13,14 @@ const Navigation = () => {
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto align-items-center">
+                    <ul className="navbar-nav me-auto">
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/home">
+                                <i className="bi bi-book me-1"></i>Knihy
+                            </Link>
+                        </li>
+                    </ul>
+                    <ul className="navbar-nav align-items-center">
                         {!token ? (
                             <>
                                 <li className="nav-item">
@@ -26,10 +33,14 @@ const Navigation = () => {
                         ) : (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link me-3" to="/my-reservations">Moje rezervácie</Link>
+                                    <Link className="nav-link me-3" to="/my-reservations">
+                                        <i className="bi bi-bookmark me-1"></i>Moje rezervácie
+                                    </Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="nav-link me-3" to="/profile">Môj profil</Link>
+                                    <Link className="nav-link me-3" to="/profile">
+                                        <i className="bi bi-person me-1"></i>Môj profil
+                                    </Link>
                                 </li>
                                 <li className="nav-item">
                                     <button className="btn btn-outline-danger ms-lg-2" onClick={logout}>Odhlásiť</button>

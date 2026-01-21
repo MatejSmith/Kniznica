@@ -5,58 +5,180 @@ import { useNavigate } from "react-router-dom";
 import "./Home.css";
 
 const Home = () => {
-    const [profile, setProfile] = useState(null);
     const [books, setBooks] = useState([]);
-    const { token, logout } = useContext(AuthContext);
+    const [filteredBooks, setFilteredBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { token } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    // Stav pre vyhľadávanie a filtre
+    const [searchQuery, setSearchQuery] = useState("");
+    const [availabilityFilter, setAvailabilityFilter] = useState("all"); // all, available, unavailable
+    const [sortBy, setSortBy] = useState("newest"); // newest, title, rating
+
+    // Presmerovanie administrátora na admin stránku
     useEffect(() => {
-        if (!token) {
-            navigate("/login");
-            return;
-        }
-
-        const fetchProfile = async () => {
-            try {
-                const res = await api.get("/auth/profile");
-                setProfile(res.data);
-
-                // Presmerovanie administrátorov na admin stránku
-                if (res.data.role === 'administrator') {
-                    navigate("/admin/books");
+        if (token) {
+            const checkAdmin = async () => {
+                try {
+                    const res = await api.get("/auth/profile");
+                    if (res.data.role === 'administrator') {
+                        navigate("/admin/books");
+                    }
+                } catch (err) {
+                    console.error("Error checking profile:", err);
                 }
-            } catch (err) {
-                logout();
-                navigate("/login");
-            }
-        };
+            };
+            checkAdmin();
+        }
+    }, [token, navigate]);
 
+    // Načítanie kníh (bez potreby prihlásenia)
+    useEffect(() => {
         const fetchBooks = async () => {
             try {
                 const res = await api.get("/books");
                 setBooks(res.data);
+                setFilteredBooks(res.data);
+                setLoading(false);
             } catch (err) {
                 console.error("Error fetching books:", err);
+                setLoading(false);
             }
         };
-
-        fetchProfile();
         fetchBooks();
-    }, [token, navigate]);
+    }, []);
 
-    if (!profile) return <div className="text-center mt-5">Načítavam...</div>;
+    // Aplikovanie filtrov a vyhľadávania
+    useEffect(() => {
+        let result = [...books];
+
+        // Vyhľadávanie podľa názvu alebo autora
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(book =>
+                book.title.toLowerCase().includes(query) ||
+                book.author.toLowerCase().includes(query) ||
+                book.isbn.toLowerCase().includes(query)
+            );
+        }
+
+        // Filter dostupnosti
+        if (availabilityFilter === "available") {
+            result = result.filter(book => book.available_copies > 0);
+        } else if (availabilityFilter === "unavailable") {
+            result = result.filter(book => book.available_copies === 0);
+        }
+
+        // Zoradenie
+        if (sortBy === "title") {
+            result.sort((a, b) => a.title.localeCompare(b.title, 'sk'));
+        } else if (sortBy === "rating") {
+            result.sort((a, b) => Number(b.average_rating) - Number(a.average_rating));
+        } else {
+            // newest - podľa dátumu pridania (predvolené)
+            result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        }
+
+        setFilteredBooks(result);
+    }, [books, searchQuery, availabilityFilter, sortBy]);
+
+    const clearFilters = () => {
+        setSearchQuery("");
+        setAvailabilityFilter("all");
+        setSortBy("newest");
+    };
+
+    if (loading) return <div className="text-center mt-5">Načítavam...</div>;
 
     return (
         <div className="container mt-4 home-page">
+            {/* Sekcia vyhľadávania a filtrov */}
+            <div className="card shadow-sm border-0 mb-4">
+                <div className="card-body p-4">
+                    <div className="row g-3 align-items-end">
+                        {/* Vyhľadávací panel */}
+                        <div className="col-12 col-md-5">
+                            <label className="form-label text-muted small fw-bold">Vyhľadávanie</label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-white border-end-0">
+                                    <i className="bi bi-search text-muted"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control border-start-0"
+                                    placeholder="Názov, autor alebo ISBN..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Filter dostupnosti */}
+                        <div className="col-6 col-md-3">
+                            <label className="form-label text-muted small fw-bold">Dostupnosť</label>
+                            <select
+                                className="form-select"
+                                value={availabilityFilter}
+                                onChange={(e) => setAvailabilityFilter(e.target.value)}
+                            >
+                                <option value="all">Všetky knihy</option>
+                                <option value="available">Len dostupné</option>
+                                <option value="unavailable">Nedostupné</option>
+                            </select>
+                        </div>
+
+                        {/* Zoradenie */}
+                        <div className="col-6 col-md-3">
+                            <label className="form-label text-muted small fw-bold">Zoradiť podľa</label>
+                            <select
+                                className="form-select"
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                            >
+                                <option value="newest">Najnovšie</option>
+                                <option value="title">Názov (A-Z)</option>
+                                <option value="rating">Hodnotenie</option>
+                            </select>
+                        </div>
+
+                        {/* Tlačidlo na vymazanie filtrov */}
+                        <div className="col-12 col-md-1">
+                            <button
+                                className="btn btn-outline-secondary w-100"
+                                onClick={clearFilters}
+                                title="Vymazať filtre"
+                            >
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Info o výsledkoch */}
+                    <div className="mt-3 text-muted small">
+                        Zobrazených <strong>{filteredBooks.length}</strong> z <strong>{books.length}</strong> kníh
+                        {searchQuery && <span className="ms-2 badge bg-primary">{searchQuery}</span>}
+                        {availabilityFilter !== "all" && (
+                            <span className="ms-2 badge bg-secondary">
+                                {availabilityFilter === "available" ? "Dostupné" : "Nedostupné"}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Zoznam kníh */}
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                {books.length === 0 ? (
+                {filteredBooks.length === 0 ? (
                     <div className="col-12">
                         <div className="alert alert-info text-center" role="alert">
-                            Zatiaľ neboli pridané žiadne knihy
+                            {books.length === 0
+                                ? "Zatiaľ neboli pridané žiadne knihy"
+                                : "Žiadne knihy nezodpovedajú vašim kritériám"}
                         </div>
                     </div>
                 ) : (
-                    books.map((book) => (
+                    filteredBooks.map((book) => (
                         <div className="col" key={book.book_id}>
                             <div className="card h-100 shadow-sm book-card" onClick={() => navigate(`/books/${book.book_id}`)} style={{ cursor: 'pointer' }}>
                                 {book.cover_image && (

@@ -26,7 +26,7 @@ const verifyAdmin = (req, res, next) => {
 router.post('/', verifyToken, verifyAdmin, booksController.addBook);
 router.get('/', booksController.getAllBooks);
 router.get('/mine', verifyToken, booksController.getUserReservations);
-router.get('/:id', verifyToken, booksController.getBookById);
+router.get('/:id', booksController.getBookById);  // Verejný prístup
 router.post('/:id/reserve', verifyToken, booksController.reserveBook);
 router.put('/:id', verifyToken, verifyAdmin, booksController.updateBook);
 router.delete('/:id', verifyToken, verifyAdmin, booksController.deleteBook);
