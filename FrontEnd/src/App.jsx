@@ -5,6 +5,7 @@ import Register from "./pages/Register/Register";
 import Home from "./pages/Home/Home";
 import AdminBooks from "./pages/AdminBooks/AdminBooks";
 import BookDetail from "./pages/BookDetail/BookDetail";
+import Profile from "./pages/Profile/Profile";
 import { AuthProvider } from "./context/AuthContext";
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/books/:id" element={<BookDetail />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="/admin/books" element={<AdminBooks />} />
                 </Routes>
             </Router>

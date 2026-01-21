@@ -127,3 +127,101 @@ exports.getProfile = async (req, res) => {
         res.status(500).send("Chyba servera");
     }
 };
+
+// Aktualizácia profilu (UPDATE)
+exports.updateProfile = async (req, res) => {
+    const { email, username, password } = req.body;
+    const user_id = req.user.user_id;
+    const errors = [];
+
+    // Validácia emailu
+    if (email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errors.push("Neplatný formát emailu.");
+        }
+    }
+
+    // Validácia užívateľského mena
+    if (username) {
+        if (username.length < 3 || username.length > 50) {
+            errors.push("Užívateľské meno musí mať 3 až 50 znakov.");
+        }
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (!usernameRegex.test(username)) {
+            errors.push("Užívateľské meno môže obsahovať iba písmená, čísla a podčiarkovník.");
+        }
+    }
+
+    // Validácia hesla (ak je zadané)
+    if (password) {
+        if (password.length < 6) {
+            errors.push("Heslo musí mať aspoň 6 znakov.");
+        }
+        if (!/[A-Z]/.test(password)) {
+            errors.push("Heslo musí obsahovať aspoň jedno veľké písmeno.");
+        }
+        if (!/[a-z]/.test(password)) {
+            errors.push("Heslo musí obsahovať aspoň jedno malé písmeno.");
+        }
+        if (!/[0-9]/.test(password)) {
+            errors.push("Heslo musí obsahovať aspoň jedno číslo.");
+        }
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
+    }
+
+    try {
+        // Kontrola, či email alebo username už nepoužíva niekto iný
+        if (email || username) {
+            const conflictCheck = await pool.query(
+                "SELECT email, username FROM users WHERE (email = $1 OR username = $2) AND user_id != $3",
+                [email, username, user_id]
+            );
+
+            if (conflictCheck.rows.length > 0) {
+                const conflict = conflictCheck.rows[0];
+                if (email && conflict.email === email) errors.push("Tento email už používa iný používateľ.");
+                if (username && conflict.username === username) errors.push("Toto užívateľské meno je už obsadené.");
+
+                if (errors.length > 0) {
+                    return res.status(400).json({ errors });
+                }
+            }
+        }
+
+        // Dynamické zostavenie query
+        let querySegments = [];
+        let params = [];
+        let paramIndex = 1;
+
+        if (email) {
+            querySegments.push(`email = $${paramIndex++}`);
+            params.push(email);
+        }
+        if (username) {
+            querySegments.push(`username = $${paramIndex++}`);
+            params.push(username);
+        }
+        if (password) {
+            querySegments.push(`password = $${paramIndex++}`);
+            params.push(password);
+        }
+
+        if (querySegments.length === 0) {
+            return res.status(400).json({ error: "Neboli zaslané žiadne zmeny." });
+        }
+
+        params.push(user_id);
+        const updateQuery = `UPDATE users SET ${querySegments.join(', ')} WHERE user_id = $${paramIndex} RETURNING user_id, email, username, role`;
+        const updatedUser = await pool.query(updateQuery, params);
+
+        res.json({ message: "Profil bol úspešne aktualizovaný", user: updatedUser.rows[0] });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Chyba servera");
+    }
+};

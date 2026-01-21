@@ -26,6 +26,9 @@ const Navigation = () => {
                         ) : (
                             <>
                                 <li className="nav-item">
+                                    <Link className="nav-link me-3" to="/profile">Môj profil</Link>
+                                </li>
+                                <li className="nav-item">
                                     <button className="btn btn-outline-danger ms-lg-2" onClick={logout}>Odhlásiť</button>
                                 </li>
                             </>
