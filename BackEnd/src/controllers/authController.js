@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // Registrácia (CREATE)
 exports.register = async (req, res) => {
@@ -59,10 +60,14 @@ exports.register = async (req, res) => {
             return res.status(400).json({ errors });
         }
 
+        // Hashovanie hesla pred uložením
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         // Vytvorenie nového používateľa
         const newUser = await pool.query(
             "INSERT INTO users (email, password, username, role) VALUES ($1, $2, $3, 'user') RETURNING user_id, email, username, role",
-            [email, password, username]
+            [email, hashedPassword, username]
         );
 
         res.status(201).json({ message: "Registrácia úspešná", user: newUser.rows[0] });
@@ -89,8 +94,9 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
-        // Overenie hesla (v produkcii by tu mal byť bcrypt.compare)
-        if (password !== user.rows[0].password) {
+        // Overenie hesla pomocou bcrypt
+        const isMatch = await bcrypt.compare(password, user.rows[0].password);
+        if (!isMatch) {
             return res.status(401).json({ error: "Nesprávne prihlasovacie údaje." });
         }
 
@@ -206,8 +212,10 @@ exports.updateProfile = async (req, res) => {
             params.push(username);
         }
         if (password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
             querySegments.push(`password = $${paramIndex++}`);
-            params.push(password);
+            params.push(hashedPassword);
         }
 
         if (querySegments.length === 0) {
