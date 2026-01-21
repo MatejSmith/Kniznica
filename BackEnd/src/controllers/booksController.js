@@ -1,3 +1,13 @@
+const path = require('path');
+
+// upload obrazka je vygenerovany pomocou AI
+exports.uploadImage = (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'Obrázok nebol nahraný.' });
+    }
+    const url = `/uploads/${req.file.filename}`;
+    res.json({ url });
+};
 const pool = require('../config/db');
 const validator = require('validator');
 

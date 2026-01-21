@@ -82,7 +82,7 @@ const MyReservations = () => {
                                 <div className="row g-0 h-100">
                                     <div className="col-4">
                                         <img
-                                            src={res.cover_image || 'https://via.placeholder.com/150x225?text=Kniha'}
+                                            src={res.cover_image}
                                             alt={res.title}
                                             className="img-fluid h-100 w-100"
                                             style={{ objectFit: 'cover' }}

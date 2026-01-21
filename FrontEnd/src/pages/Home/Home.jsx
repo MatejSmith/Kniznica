@@ -93,11 +93,9 @@ const Home = () => {
 
     return (
         <div className="container mt-4 home-page">
-            {/* Sekcia vyhľadávania a filtrov */}
             <div className="card shadow-sm border-0 mb-4">
                 <div className="card-body p-4">
                     <div className="row g-3 align-items-end">
-                        {/* Vyhľadávací panel */}
                         <div className="col-12 col-md-5">
                             <label className="form-label text-muted small fw-bold">Vyhľadávanie</label>
                             <div className="input-group">
@@ -114,7 +112,6 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Filter dostupnosti */}
                         <div className="col-6 col-md-3">
                             <label className="form-label text-muted small fw-bold">Dostupnosť</label>
                             <select
@@ -128,7 +125,6 @@ const Home = () => {
                             </select>
                         </div>
 
-                        {/* Zoradenie */}
                         <div className="col-6 col-md-3">
                             <label className="form-label text-muted small fw-bold">Zoradiť podľa</label>
                             <select
@@ -142,7 +138,6 @@ const Home = () => {
                             </select>
                         </div>
 
-                        {/* Tlačidlo na vymazanie filtrov */}
                         <div className="col-12 col-md-1">
                             <button
                                 className="btn btn-outline-secondary w-100"
@@ -154,7 +149,6 @@ const Home = () => {
                         </div>
                     </div>
 
-                    {/* Info o výsledkoch */}
                     <div className="mt-3 text-muted small">
                         Zobrazených <strong>{filteredBooks.length}</strong> z <strong>{books.length}</strong> kníh
                         {searchQuery && <span className="ms-2 badge bg-primary">{searchQuery}</span>}
@@ -167,7 +161,6 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Zoznam kníh */}
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {filteredBooks.length === 0 ? (
                     <div className="col-12">
@@ -180,10 +173,15 @@ const Home = () => {
                 ) : (
                     filteredBooks.map((book) => (
                         <div className="col" key={book.book_id}>
+                            {/* zobrazenie lokalneho obrazka je vygenerovany pomocou AI */}
                             <div className="card h-100 shadow-sm book-card" onClick={() => navigate(`/books/${book.book_id}`)} style={{ cursor: 'pointer' }}>
                                 {book.cover_image && (
                                     <img
-                                        src={book.cover_image}
+                                        src={
+                                            book.cover_image.startsWith('/uploads')
+                                                ? `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}${book.cover_image}`
+                                                : book.cover_image
+                                        }
                                         className="card-img-top"
                                         alt={book.title}
                                         style={{ height: '250px', objectFit: 'cover' }}
@@ -193,7 +191,6 @@ const Home = () => {
                                     <h5 className="card-title">{book.title}</h5>
                                     <h6 className="card-subtitle mb-2 text-muted">{book.author}</h6>
 
-                                    {/* Zobrazenie hodnotenia */}
                                     <div className="mb-2">
                                         <span className="text-warning me-1">
                                             <i className={`bi bi-star${book.average_rating > 0 ? '-fill' : ''}`}></i>

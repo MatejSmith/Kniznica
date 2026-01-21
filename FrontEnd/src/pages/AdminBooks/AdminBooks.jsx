@@ -19,6 +19,7 @@ const AdminBooks = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [editingBook, setEditingBook] = useState(null);
+    const [uploading, setUploading] = useState(false);
     const { token, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -56,8 +57,33 @@ const AdminBooks = () => {
         }
     };
 
+    // upload lokalneho obrazka je vygenerovany pomocou AI
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploading(true);
+        setError("");
+        setSuccess("");
+        try {
+            const data = new FormData();
+            data.append("image", file);
+            
+            const res = await api.post("/books/upload-image", data, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setFormData((prev) => ({ ...prev, cover_image: res.data.url }));
+            setSuccess("Obrázok bol úspešne nahraný.");
+        } catch (err) {
+            setError(err.response?.data?.error || "Chyba pri nahrávaní obrázka");
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -196,10 +222,22 @@ const AdminBooks = () => {
                                     <input
                                         type="text"
                                         name="cover_image"
-                                        className="form-control"
+                                        className="form-control mb-2"
                                         value={formData.cover_image}
                                         onChange={handleChange}
+                                        placeholder="alebo nahrajte obrázok nižšie"
                                     />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="form-control"
+                                        onChange={handleImageUpload}
+                                        disabled={uploading}
+                                    />
+                                    {uploading && <div className="text-info mt-1">Nahrávam obrázok...</div>}
+                                    {formData.cover_image && formData.cover_image.startsWith("http") && (
+                                        <img src={formData.cover_image} alt="Náhľad obrázka" style={{maxWidth: 120, marginTop: 8}} />
+                                    )}
                                 </div>
                                 <div className="row">
                                     <div className="col-6 mb-3">

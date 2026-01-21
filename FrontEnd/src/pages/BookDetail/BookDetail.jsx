@@ -136,9 +136,14 @@ const BookDetail = () => {
             <div className="card shadow-lg border-0 overflow-hidden mb-5">
                 <div className="row g-0">
                     <div className="col-md-4 bg-light d-flex align-items-center justify-content-center p-4">
+                        {/* zobrazenie lokalneho obrazka je vygenerovany pomocou AI */}
                         {book.cover_image ? (
                             <img
-                                src={book.cover_image}
+                                src={
+                                    book.cover_image.startsWith('/uploads')
+                                        ? `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}${book.cover_image}`
+                                        : book.cover_image
+                                }
                                 className="img-fluid rounded shadow"
                                 alt={book.title}
                                 style={{ maxHeight: '450px', objectFit: 'contain' }}
@@ -158,7 +163,6 @@ const BookDetail = () => {
                             <h1 className="display-5 fw-bold mb-2">{book.title}</h1>
                             <h3 className="text-muted mb-3">{book.author}</h3>
 
-                            {/* Zobrazenie priemerného hodnotenia */}
                             <div className="mb-4 h5">
                                 <span className="text-warning me-1">
                                     <i className={`bi bi-star${book.average_rating > 0 ? '-fill' : ''}`}></i>
@@ -193,7 +197,7 @@ const BookDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Rezervačné tlačidlo len pre prihlásených */}
+                            
                             {token ? (
                                 <div className="d-grid gap-2 d-md-flex justify-content-md-start">
                                     {isReserved ? (
@@ -226,11 +230,11 @@ const BookDetail = () => {
                 </div>
             </div>
 
-            {/* Recenzie Sekcia */}
+            
             <div className="reviews-section">
                 <h2 className="fw-bold mb-4">Recenzie ({reviews.length})</h2>
 
-                {/* Formulár na pridanie recenzie - len pre prihlásených */}
+                
                 {token ? (
                     <div className="card shadow-sm border-0 mb-4">
                         <div className="card-body p-4">
@@ -277,7 +281,7 @@ const BookDetail = () => {
                     </div>
                 )}
 
-                {/* Zoznam recenzií */}
+                
                 <div className="reviews-list">
                     {reviews.length === 0 ? (
                         <div className="text-center py-5 text-muted">
@@ -290,6 +294,7 @@ const BookDetail = () => {
                                 <div className="card-body p-4">
                                     <div className="d-flex justify-content-between align-items-center mb-2">
                                         <div className="fw-bold h5 mb-0">{review.username}</div>
+                                        {/* Zobrazenie hodnotenia bolo vygenerovane pomocou AI */}
                                         <div className="text-warning h5 mb-0">
                                             {[...Array(5)].map((_, i) => (
                                                 <i key={i} className={`bi bi-star${i < review.rating ? '-fill' : ''}`}></i>

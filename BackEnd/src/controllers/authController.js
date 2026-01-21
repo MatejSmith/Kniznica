@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// pouzitie sifrovania bcrypt pre bezpecne ulozenie hesiel bolo urobene pomocou AI
 
 exports.register = async (req, res) => {
     const { email, password, username } = req.body;
@@ -60,7 +61,8 @@ exports.register = async (req, res) => {
             return res.status(400).json({ errors });
         }
 
-        
+
+        // sifrovanie hesla pomocou bcrypt bolo implementovane pomocou AI
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
