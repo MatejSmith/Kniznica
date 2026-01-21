@@ -70,6 +70,16 @@ const Home = () => {
                                 <div className="card-body">
                                     <h5 className="card-title">{book.title}</h5>
                                     <h6 className="card-subtitle mb-2 text-muted">{book.author}</h6>
+
+                                    {/* Zobrazenie hodnotenia */}
+                                    <div className="mb-2">
+                                        <span className="text-warning me-1">
+                                            <i className={`bi bi-star${book.average_rating > 0 ? '-fill' : ''}`}></i>
+                                        </span>
+                                        <span className="fw-bold">{Number(book.average_rating).toFixed(1)}</span>
+                                        <span className="text-muted small ms-1">({book.review_count})</span>
+                                    </div>
+
                                     {book.description && (
                                         <p className="card-text text-muted small">
                                             {book.description.length > 100

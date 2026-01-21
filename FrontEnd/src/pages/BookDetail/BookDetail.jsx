@@ -9,10 +9,44 @@ const BookDetail = () => {
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
     const [book, setBook] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
     const [isReserved, setIsReserved] = useState(false);
+
+    // State pre novú recenziu
+    const [rating, setRating] = useState(5);
+    const [hoverRating, setHoverRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [reviewError, setReviewError] = useState(null);
+    const [reviewSuccess, setReviewSuccess] = useState(null);
+
+    const fetchBook = async () => {
+        try {
+            const res = await api.get(`/books/${id}`);
+            setBook(res.data);
+
+            if (token) {
+                const resReservation = await api.get(`/books/${id}/reservation`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setIsReserved(resReservation.data.reserved);
+            }
+        } catch (err) {
+            console.error("Error fetching book:", err);
+            setError("Nepodarilo sa načítať detaily knihy.");
+        }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const res = await api.get(`/reviews/${id}`);
+            setReviews(res.data);
+        } catch (err) {
+            console.error("Error fetching reviews:", err);
+        }
+    };
 
     useEffect(() => {
         if (!token) {
@@ -20,27 +54,13 @@ const BookDetail = () => {
             return;
         }
 
-        const fetchBook = async () => {
-            try {
-                const res = await api.get(`/books/${id}`);
-                setBook(res.data);
-
-                if (token) {
-                    const resReservation = await api.get(`/books/${id}/reservation`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    setIsReserved(resReservation.data.reserved);
-                }
-
-                setLoading(false);
-            } catch (err) {
-                console.error("Error fetching book:", err);
-                setError("Nepodarilo sa načítať detaily knihy.");
-                setLoading(false);
-            }
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([fetchBook(), fetchReviews()]);
+            setLoading(false);
         };
 
-        fetchBook();
+        loadData();
     }, [id, token]);
 
     const handleReserve = async () => {
@@ -55,9 +75,7 @@ const BookDetail = () => {
             });
             setMessage(res.data.message);
             setIsReserved(true);
-            // Refresh book data to update available copies
-            const updatedBook = await api.get(`/books/${id}`);
-            setBook(updatedBook.data);
+            fetchBook();
         } catch (err) {
             setError(err.response?.data?.error || "Chyba pri rezervácii.");
         }
@@ -70,11 +88,37 @@ const BookDetail = () => {
             });
             setMessage(res.data.message);
             setIsReserved(false);
-            // Refresh book data
-            const updatedBook = await api.get(`/books/${id}`);
-            setBook(updatedBook.data);
+            fetchBook();
         } catch (err) {
             setError(err.response?.data?.error || "Chyba pri rušení rezervácie.");
+        }
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        setReviewError(null);
+        setReviewSuccess(null);
+
+        if (!comment.trim()) {
+            setReviewError("Komentár nemôže byť prázdny.");
+            return;
+        }
+
+        try {
+            await api.post("/reviews", {
+                book_id: id,
+                rating,
+                comment
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setReviewSuccess("Recenzia bola úspešne pridaná.");
+            setComment("");
+            setRating(5);
+            fetchReviews();
+        } catch (err) {
+            setReviewError(err.response?.data?.error || "Chyba pri pridávaní recenzie.");
         }
     };
 
@@ -83,12 +127,12 @@ const BookDetail = () => {
     if (!book) return <div className="container mt-4 alert alert-warning">Kniha nebola nájdená.</div>;
 
     return (
-        <div className="container mt-4 book-detail">
+        <div className="container mt-4 mb-5 book-detail">
             <button className="btn btn-outline-secondary mb-4" onClick={() => navigate(-1)}>
                 &lsaquo; Späť
             </button>
 
-            <div className="card shadow-lg border-0 overflow-hidden">
+            <div className="card shadow-lg border-0 overflow-hidden mb-5">
                 <div className="row g-0">
                     <div className="col-md-4 bg-light d-flex align-items-center justify-content-center p-4">
                         {book.cover_image ? (
@@ -111,7 +155,16 @@ const BookDetail = () => {
                             {error && <div className="alert alert-danger">{error}</div>}
 
                             <h1 className="display-5 fw-bold mb-2">{book.title}</h1>
-                            <h3 className="text-muted mb-4">{book.author}</h3>
+                            <h3 className="text-muted mb-3">{book.author}</h3>
+
+                            {/* Zobrazenie priemerného hodnotenia */}
+                            <div className="mb-4 h5">
+                                <span className="text-warning me-1">
+                                    <i className={`bi bi-star${book.average_rating > 0 ? '-fill' : ''}`}></i>
+                                </span>
+                                <span className="fw-bold">{Number(book.average_rating).toFixed(1)}</span>
+                                <span className="text-muted small ms-2">({book.review_count} {book.review_count === 1 ? 'recenzia' : (book.review_count >= 2 && book.review_count <= 4 ? 'recenzie' : 'recenzií')})</span>
+                            </div>
 
                             <hr className="my-4" />
 
@@ -161,8 +214,81 @@ const BookDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Recenzie Sekcia */}
+            <div className="reviews-section">
+                <h2 className="fw-bold mb-4">Recenzie ({reviews.length})</h2>
+
+                {/* Formulár na pridanie recenzie */}
+                <div className="card shadow-sm border-0 mb-4">
+                    <div className="card-body p-4">
+                        <h5 className="fw-bold mb-3">Pridať recenziu</h5>
+                        {reviewError && <div className="alert alert-danger">{reviewError}</div>}
+                        {reviewSuccess && <div className="alert alert-success">{reviewSuccess}</div>}
+
+                        <form onSubmit={handleReviewSubmit}>
+                            <div className="mb-3">
+                                <label className="form-label text-muted">Hodnotenie</label>
+                                <div className="rating-input h3" onMouseLeave={() => setHoverRating(0)}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <i
+                                            key={star}
+                                            className={`bi bi-star${star <= (hoverRating || rating) ? '-fill' : ''} text-warning me-2`}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => setRating(star)}
+                                            onMouseEnter={() => setHoverRating(star)}
+                                        ></i>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label text-muted">Komentár</label>
+                                <textarea
+                                    className="form-control"
+                                    rows="3"
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="Napíšte vašu recenziu..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <button type="submit" className="btn btn-dark px-4 py-2">Odoslať recenziu</button>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Zoznam recenzií */}
+                <div className="reviews-list">
+                    {reviews.length === 0 ? (
+                        <div className="text-center py-5 text-muted">
+                            <i className="bi bi-chat-left-dots fs-1 d-block mb-3"></i>
+                            <p>Zatiaľ žiadne recenzie. Buďte prvý, kto napíše názor!</p>
+                        </div>
+                    ) : (
+                        reviews.map((review) => (
+                            <div key={review.review_id} className="card border-0 shadow-sm mb-3">
+                                <div className="card-body p-4">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <div className="fw-bold h5 mb-0">{review.username}</div>
+                                        <div className="text-warning h5 mb-0">
+                                            {[...Array(5)].map((_, i) => (
+                                                <i key={i} className={`bi bi-star${i < review.rating ? '-fill' : ''}`}></i>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-muted mb-2">{review.comment}</p>
+                                    <small className="text-secondary">
+                                        {new Date(review.created_at).toLocaleDateString('sk-SK')}
+                                    </small>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
+
 
 export default BookDetail;

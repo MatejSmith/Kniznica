@@ -45,7 +45,15 @@ exports.addBook = async (req, res) => {
 // Získanie všetkých kníh
 exports.getAllBooks = async (req, res) => {
     try {
-        const books = await pool.query("SELECT * FROM books ORDER BY created_at DESC");
+        const books = await pool.query(`
+            SELECT b.*, 
+                   COALESCE(AVG(r.rating), 0) as average_rating, 
+                   COUNT(r.review_id) as review_count
+            FROM books b
+            LEFT JOIN reviews r ON b.book_id = r.book_id
+            GROUP BY b.book_id
+            ORDER BY b.created_at DESC
+        `);
         res.json(books.rows);
     } catch (err) {
         console.error(err.message);
@@ -128,7 +136,16 @@ exports.deleteBook = async (req, res) => {
 exports.getBookById = async (req, res) => {
     const { id } = req.params;
     try {
-        const book = await pool.query("SELECT * FROM books WHERE book_id = $1", [id]);
+        const book = await pool.query(`
+            SELECT b.*, 
+                   COALESCE(AVG(r.rating), 0) as average_rating,
+                   COUNT(r.review_id) as review_count
+            FROM books b
+            LEFT JOIN reviews r ON b.book_id = r.book_id
+            WHERE b.book_id = $1
+            GROUP BY b.book_id
+        `, [id]);
+
         if (book.rows.length === 0) {
             return res.status(404).json({ error: "Kniha nebola nájdená." });
         }
